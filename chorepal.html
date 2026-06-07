@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ChoresPal</title>
+<style>
+  :root{
+    --bg:#0f1117;--surface:#1a1d27;--card:#22263a;--accent:#00c896;--accent2:#0088ff;
+    --pink:#e91e8c;--purple:#9c27b0;--yellow:#ff9800;--red:#f44336;--green:#4caf50;
+    --text:#e8eaf6;--muted:#8892b0;--border:#2e3250;--radius:14px;
+    --tyron:#2196f3;--ansonette:#e91e8c;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;}
+
+  /* AUTH */
+  #auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+  .logo{font-size:52px;margin-bottom:8px;}
+  .app-title{font-size:28px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;}
+  .app-sub{color:var(--muted);font-size:14px;margin-bottom:28px;text-align:center;}
+  .auth-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;width:100%;max-width:360px;}
+  .auth-box h2{font-size:18px;margin-bottom:20px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
+  .field input,.field select,.field textarea{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-size:15px;outline:none;font-family:inherit;}
+  .field input:focus,.field select:focus{border-color:var(--accent);}
+  .field select option{background:var(--card);}
+  .btn{width:100%;padding:13px;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .2s;}
+  .btn:active{opacity:.8;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
+  .btn-secondary{background:var(--card);color:var(--text);border:1px solid var(--border);margin-top:10px;}
+  .btn-sm{padding:8px 14px;font-size:13px;border-radius:8px;border:none;cursor:pointer;font-weight:600;}
+  .auth-error{color:var(--red);font-size:13px;margin-top:10px;text-align:center;min-height:18px;}
+
+  /* HOME */
+  #home-screen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+  .home-apps{display:flex;flex-direction:column;gap:14px;width:100%;max-width:360px;}
+  .app-card{border-radius:20px;padding:24px;text-align:center;cursor:pointer;transition:transform .15s;border:1px solid var(--border);}
+  .app-card:active{transform:scale(.97);}
+  .app-card.pantry{background:linear-gradient(135deg,#1a1d27,#22263a);border-color:#2e3250;}
+  .app-card.baby{background:linear-gradient(135deg,#1a0a1e,#2a1040);border-color:#3a1a5a;}
+  .app-card.chores{background:linear-gradient(135deg,#0a1e1a,#0a2010);border-color:#1a4a30;}
+  .app-card-icon{font-size:40px;margin-bottom:8px;}
+  .app-card-title{font-size:20px;font-weight:800;margin-bottom:4px;}
+  .app-card.pantry .app-card-title{background:linear-gradient(135deg,#6c63ff,#ff6584);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .app-card.baby .app-card-title{background:linear-gradient(135deg,#e91e8c,#9c27b0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .app-card.chores .app-card-title{background:linear-gradient(135deg,#00c896,#0088ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .app-card-sub{font-size:12px;color:var(--muted);}
+  .home-signout{margin-top:20px;font-size:13px;color:var(--muted);cursor:pointer;text-decoration:underline;}
+
+  /* APP */
+  #chore-screen{display:none;flex-direction:column;min-height:100vh;max-width:600px;margin:0 auto;padding-bottom:90px;}
+  header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
+  .header-left{display:flex;align-items:center;gap:10px;}
+  .header-logo{font-size:22px;}
+  .header-title{font-size:18px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .icon-btn{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 9px;color:var(--text);cursor:pointer;font-size:15px;}
+
+  /* TABS */
+  .tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);}
+  .tab{flex:1;padding:12px 4px;text-align:center;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;}
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+  /* SCORE BANNER */
+  .score-banner{display:flex;gap:0;margin:12px 16px 0;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);}
+  .score-side{flex:1;padding:14px;text-align:center;}
+  .score-side.tyron{background:rgba(33,150,243,.1);border-right:1px solid var(--border);}
+  .score-side.ansonette{background:rgba(233,30,140,.1);}
+  .score-name{font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+  .score-side.tyron .score-name{color:var(--tyron);}
+  .score-side.ansonette .score-name{color:var(--ansonette);}
+  .score-pts{font-size:26px;font-weight:800;}
+  .score-side.tyron .score-pts{color:var(--tyron);}
+  .score-side.ansonette .score-pts{color:var(--ansonette);}
+  .score-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+  .score-crown{font-size:16px;}
+
+  /* CHORE CARDS */
+  .chores-list{padding:12px 16px;}
+  .section-header{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 8px;font-weight:700;}
+  .chore-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;transition:opacity .2s;}
+  .chore-card.done{opacity:.5;}
+  .chore-card.done .chore-name{text-decoration:line-through;}
+  .chore-emoji{font-size:26px;flex-shrink:0;}
+  .chore-info{flex:1;min-width:0;}
+  .chore-name{font-size:15px;font-weight:600;margin-bottom:3px;}
+  .chore-meta{display:flex;gap:6px;flex-wrap:wrap;}
+  .chore-pill{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;}
+  .pill-daily{background:#1a3d2b;color:var(--green);}
+  .pill-weekly{background:#1a2a4a;color:var(--accent2);}
+  .pill-monthly{background:#2d1f5e;color:#a78bfa;}
+  .pill-tyron{background:rgba(33,150,243,.15);color:var(--tyron);}
+  .pill-ansonette{background:rgba(233,30,140,.15);color:var(--ansonette);}
+  .pill-rotating{background:rgba(255,152,0,.15);color:var(--yellow);}
+  .pill-pts{background:rgba(0,200,150,.15);color:var(--accent);}
+  .chore-done-by{font-size:12px;margin-top:4px;}
+  .chore-done-by.tyron{color:var(--tyron);}
+  .chore-done-by.ansonette{color:var(--ansonette);}
+  .chore-actions{display:flex;gap:6px;flex-shrink:0;}
+  .done-btn{padding:8px 12px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
+  .done-btn.tyron{background:rgba(33,150,243,.2);color:var(--tyron);border:1px solid var(--tyron);}
+  .done-btn.ansonette{background:rgba(233,30,140,.2);color:var(--ansonette);border:1px solid var(--ansonette);}
+  .done-btn:active{opacity:.7;}
+  .undone-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--muted);cursor:pointer;}
+  .empty-state{text-align:center;padding:50px 20px;color:var(--muted);}
+  .empty-state .big{font-size:48px;margin-bottom:10px;}
+
+  /* SETUP TAB */
+  .setup-section{padding:12px 16px;}
+  .setup-add-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;}
+  .setup-add-card h3{font-size:15px;font-weight:700;margin-bottom:14px;}
+  .form-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+  .form-row .field{flex:1;margin-bottom:0;min-width:120px;}
+  .emoji-input{width:60px!important;text-align:center;font-size:20px;}
+  .pts-input{width:70px!important;text-align:center;}
+  .chore-list-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+  .chore-list-item .cli-emoji{font-size:22px;flex-shrink:0;}
+  .chore-list-item .cli-info{flex:1;}
+  .chore-list-item .cli-name{font-size:14px;font-weight:600;}
+  .chore-list-item .cli-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+  .del-btn{background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:4px;}
+
+  /* HISTORY TAB */
+  .history-list{padding:12px 16px;}
+  .hist-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+  .hist-icon{font-size:22px;flex-shrink:0;}
+  .hist-info{flex:1;}
+  .hist-name{font-size:14px;font-weight:600;}
+  .hist-by{font-size:12px;margin-top:2px;}
+  .hist-by.tyron{color:var(--tyron);}
+  .hist-by.ansonette{color:var(--ansonette);}
+  .hist-time{font-size:11px;color:var(--muted);text-align:right;flex-shrink:0;}
+
+  /* STREAKS */
+  .streak-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin:12px 16px 0;}
+  .streak-card h3{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;}
+  .streak-row{display:flex;justify-content:space-around;}
+  .streak-item{text-align:center;}
+  .streak-val{font-size:28px;font-weight:800;color:var(--yellow);}
+  .streak-lbl{font-size:11px;color:var(--muted);margin-top:2px;}
+
+  /* FAB */
+  .fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(0,200,150,.4);display:flex;align-items:center;justify-content:center;z-index:50;}
+
+  /* MODAL */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:flex;align-items:flex-end;justify-content:center;}
+  .modal{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:600px;max-height:92vh;overflow-y:auto;padding:20px 20px 40px;}
+  .modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px;}
+  .modal h2{font-size:18px;margin-bottom:16px;font-weight:700;}
+  .modal-close{float:right;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;margin-top:-4px;}
+  .modal .btn{margin-top:8px;}
+  .who-btns{display:flex;gap:10px;margin-bottom:8px;}
+  .who-btn{flex:1;padding:16px;border:2px solid var(--border);border-radius:12px;background:var(--card);font-size:15px;font-weight:700;cursor:pointer;text-align:center;}
+  .who-btn.tyron{border-color:var(--tyron);background:rgba(33,150,243,.15);color:var(--tyron);}
+  .who-btn.ansonette{border-color:var(--ansonette);background:rgba(233,30,140,.15);color:var(--ansonette);}
+  .who-btn:active{opacity:.75;}
+
+  #toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);border-radius:20px;padding:10px 20px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:200;white-space:nowrap;}
+  #toast.show{opacity:1;}
+  .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--muted);}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="logo">🌟</div>
+  <div class="app-title">FamilyPal</div>
+  <div class="app-sub">Your family life, all in one place</div>
+  <div class="auth-box">
+    <h2>Welcome back</h2>
+    <div class="field"><label>Email</label><input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email"></div>
+    <div class="field"><label>Password</label><input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password"></div>
+    <button class="btn btn-primary" onclick="signIn()">Sign In</button>
+    <button class="btn btn-secondary" onclick="signUp()">Create Account</button>
+    <div class="auth-error" id="auth-error"></div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div id="home-screen">
+  <div class="logo">🌟</div>
+  <div class="app-title">FamilyPal</div>
+  <div class="app-sub">What would you like to do?</div>
+  <div class="home-apps">
+    <div class="app-card pantry" onclick="goTo('https://tyront3.github.io/PantryPal/')">
+      <div class="app-card-icon">🥫</div>
+      <div class="app-card-title">PantryPal</div>
+      <div class="app-card-sub">Pantry tracker · Shopping list · Inventory</div>
+    </div>
+    <div class="app-card baby" onclick="goTo('https://tyront3.github.io/PantryPal/babypal.html')">
+      <div class="app-card-icon">🍼</div>
+      <div class="app-card-title">BabyPal</div>
+      <div class="app-card-sub">Feeds · Diapers · Sleep · Geomé's day</div>
+    </div>
+    <div class="app-card chores" onclick="openChoresPal()">
+      <div class="app-card-icon">🧹</div>
+      <div class="app-card-title">ChoresPal</div>
+      <div class="app-card-sub">Daily chores · Points · Tyron vs Ansonette</div>
+    </div>
+  </div>
+  <div class="home-signout" onclick="signOut()">Sign out</div>
+</div>
+
+<!-- CHOREPAL APP -->
+<div id="chore-screen">
+  <header>
+    <div class="header-left">
+      <span class="header-logo">🧹</span>
+      <span class="header-title">ChoresPal</span>
+    </div>
+    <div style="display:flex;gap:6px">
+      <button class="icon-btn" onclick="goHome()">🏠</button>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('today',this)">✅ Today</div>
+    <div class="tab" onclick="switchTab('history',this)">📋 History</div>
+    <div class="tab" onclick="switchTab('setup',this)">⚙️ Setup</div>
+  </div>
+
+  <div id="tab-today">
+    <div id="score-area"></div>
+    <div id="streak-area"></div>
+    <div class="chores-list" id="chores-today"></div>
+  </div>
+
+  <div id="tab-history" style="display:none">
+    <div class="history-list" id="history-content"><div class="loading"><span class="spinner"></span></div></div>
+  </div>
+
+  <div id="tab-setup" style="display:none">
+    <div class="setup-section">
+      <div class="setup-add-card">
+        <h3>➕ Add a chore</h3>
+        <div class="form-row">
+          <div class="field" style="flex:0 0 60px"><label>Icon</label><input type="text" id="new-emoji" class="emoji-input" placeholder="🧹" maxlength="2"></div>
+          <div class="field"><label>Chore name *</label><input type="text" id="new-name" placeholder="e.g. Vacuum lounge"></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>Frequency</label>
+            <select id="new-freq">
+              <option value="daily">📅 Daily</option>
+              <option value="weekly">📆 Weekly</option>
+              <option value="monthly">🗓️ Monthly</option>
+            </select>
+          </div>
+          <div class="field"><label>Assigned to</label>
+            <select id="new-assign">
+              <option value="rotating">🔄 Rotating</option>
+              <option value="Tyron">👨 Tyron</option>
+              <option value="Ansonette">👩 Ansonette</option>
+            </select>
+          </div>
+          <div class="field" style="flex:0 0 80px"><label>Points</label><input type="number" id="new-pts" class="pts-input" value="1" min="1" max="10"></div>
+        </div>
+        <button class="btn btn-primary" onclick="addChore()">Add Chore</button>
+      </div>
+
+      <div style="font-size:13px;color:var(--muted);margin-bottom:10px">Your chores (<span id="chore-count">0</span>)</div>
+      <div id="chore-setup-list"></div>
+
+      <!-- Quick starter pack -->
+      <div style="margin-top:16px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);">
+        <div style="font-size:13px;font-weight:700;margin-bottom:10px">⚡ Quick starter pack</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Tap to add common chores instantly:</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px" id="starter-pack"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="fab" onclick="switchTabById('setup')" title="Add chore">+</button>
+</div>
+
+<!-- MODAL: Who did it? -->
+<div class="modal-overlay" id="who-modal" style="display:none" onclick="closeModalClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('who-modal')">✕</button>
+    <h2 id="who-title">Who did it?</h2>
+    <div class="who-btns">
+      <button class="who-btn tyron" onclick="markDone('Tyron')">👨 Tyron</button>
+      <button class="who-btn ansonette" onclick="markDone('Ansonette')">👩 Ansonette</button>
+    </div>
+    <button class="btn btn-secondary" onclick="closeModal('who-modal')">Cancel</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const SUPABASE_URL='https://kfbvmabnblxwznmrjhny.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmYnZtYWJuYmx4d3pubXJqaG55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MjM1MjQsImV4cCI6MjA5NjM5OTUyNH0._m5LmH81Xk3RU63jvKO7vs8R4lnPINHD3MMAXJwQOxc';
+
+const STARTER_PACK=[
+  {emoji:'🧹',name:'Sweep floors',freq:'daily',assign:'rotating',pts:1},
+  {emoji:'🍽️',name:'Wash dishes',freq:'daily',assign:'rotating',pts:1},
+  {emoji:'🧺',name:'Do laundry',freq:'weekly',assign:'rotating',pts:2},
+  {emoji:'🛏️',name:'Make bed',freq:'daily',assign:'rotating',pts:1},
+  {emoji:'🚿',name:'Clean bathroom',freq:'weekly',assign:'rotating',pts:3},
+  {emoji:'🛒',name:'Grocery shopping',freq:'weekly',assign:'rotating',pts:2},
+  {emoji:'🗑️',name:'Empty bins',freq:'daily',assign:'rotating',pts:1},
+  {emoji:'🧴',name:'Mop floors',freq:'weekly',assign:'rotating',pts:2},
+  {emoji:'🪟',name:'Clean windows',freq:'monthly',assign:'rotating',pts:3},
+  {emoji:'🌿',name:'Water plants',freq:'weekly',assign:'rotating',pts:1},
+  {emoji:'👶',name:'Bath Geomé',freq:'daily',assign:'rotating',pts:2},
+  {emoji:'🍼',name:'Sterilise bottles',freq:'daily',assign:'rotating',pts:1},
+];
+
+async function sbFetch(path,opts={}){
+  const r=await fetch(SUPABASE_URL+path,{...opts,headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,...(opts.headers||{})}});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(d.message||d.error||r.status);
+  return d;
+}
+function show(id){document.getElementById(id).style.display='flex';}
+function hide(id){document.getElementById(id).style.display='none';}
+function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+
+function saveSession(e,p){localStorage.setItem('fp_email',e);localStorage.setItem('fp_pass',p);}
+function clearSession(){localStorage.removeItem('fp_email');localStorage.removeItem('fp_pass');}
+function getSaved(){return{email:localStorage.getItem('fp_email'),pass:localStorage.getItem('fp_pass')};}
+
+window.onload=()=>{
+  const {email,pass}=getSaved();
+  if(email&&pass){autoSignIn(email,pass);}else{show('auth-screen');}
+  renderStarterPack();
+};
+
+async function autoSignIn(email,pass){
+  try{await sbFetch('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email,password:pass})});enterHome();}
+  catch(e){show('auth-screen');}
+}
+async function signIn(){
+  const email=document.getElementById('auth-email').value.trim(),pass=document.getElementById('auth-password').value;
+  document.getElementById('auth-error').textContent='';
+  try{await sbFetch('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email,password:pass})});saveSession(email,pass);enterHome();}
+  catch(e){document.getElementById('auth-error').textContent=e.message;}
+}
+async function signUp(){
+  const email=document.getElementById('auth-email').value.trim(),pass=document.getElementById('auth-password').value;
+  document.getElementById('auth-error').textContent='';
+  if(pass.length<6){document.getElementById('auth-error').textContent='Password must be 6+ chars.';return;}
+  try{await sbFetch('/auth/v1/signup',{method:'POST',body:JSON.stringify({email,password:pass})});document.getElementById('auth-error').style.color='var(--green)';document.getElementById('auth-error').textContent='Account created! Please sign in.';}
+  catch(e){document.getElementById('auth-error').textContent=e.message;}
+}
+function signOut(){clearSession();hide('home-screen');hide('chore-screen');show('auth-screen');}
+function enterHome(){hide('auth-screen');show('home-screen');}
+function goHome(){hide('chore-screen');show('home-screen');}
+function goTo(url){window.location.href=url;}
+function openChoresPal(){hide('home-screen');show('chore-screen');loadAll();}
+
+// ── Tabs ──────────────────────────────────────────────────
+let activeTab='today';
+let chores=[],todayLogs=[];
+
+function switchTab(tab,btn){
+  activeTab=tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  ['today','history','setup'].forEach(t=>{document.getElementById('tab-'+t).style.display=t===tab?'block':'none';});
+  if(tab==='today')renderToday();
+  if(tab==='history')loadHistory();
+  if(tab==='setup')renderSetup();
+}
+function switchTabById(tab){
+  const btns=document.querySelectorAll('.tab');
+  const idx={today:0,history:1,setup:2}[tab];
+  if(idx!==undefined)switchTab(tab,btns[idx]);
+}
+
+// ── Data ──────────────────────────────────────────────────
+async function loadAll(){
+  try{
+    const todayStart=new Date();todayStart.setHours(0,0,0,0);
+    const weekStart=new Date();weekStart.setDate(weekStart.getDate()-weekStart.getDay());weekStart.setHours(0,0,0,0);
+    const monthStart=new Date();monthStart.setDate(1);monthStart.setHours(0,0,0,0);
+
+    [chores,todayLogs]=await Promise.all([
+      sbFetch('/rest/v1/chores?active=eq.true&order=name.asc&select=*'),
+      sbFetch(`/rest/v1/chore_logs?completed_at=gte.${todayStart.toISOString()}&order=completed_at.desc&select=*`)
+    ]);
+    renderToday();
+  }catch(e){toast('Error: '+e.message);}
+}
+
+function isDueToday(chore){
+  const now=new Date();
+  if(chore.frequency==='daily')return true;
+  if(chore.frequency==='weekly'){
+    // show weekly chores on Monday or if not done this week
+    const weekStart=new Date();weekStart.setDate(weekStart.getDate()-weekStart.getDay());weekStart.setHours(0,0,0,0);
+    const doneThisWeek=todayLogs.some(l=>l.chore_id===chore.id&&new Date(l.completed_at)>=weekStart);
+    return!doneThisWeek;
+  }
+  if(chore.frequency==='monthly'){
+    const monthStart=new Date();monthStart.setDate(1);monthStart.setHours(0,0,0,0);
+    const doneThisMonth=todayLogs.some(l=>l.chore_id===chore.id&&new Date(l.completed_at)>=monthStart);
+    return!doneThisMonth;
+  }
+  return true;
+}
+
+function isDoneToday(chore){
+  const todayStart=new Date();todayStart.setHours(0,0,0,0);
+  return todayLogs.find(l=>l.chore_id===chore.id&&new Date(l.completed_at)>=todayStart);
+}
+
+// ── Render Today ──────────────────────────────────────────
+function renderToday(){
+  // Scores
+  const weekStart=new Date();weekStart.setDate(weekStart.getDate()-weekStart.getDay());weekStart.setHours(0,0,0,0);
+  const tyronPts=todayLogs.filter(l=>l.completed_by==='Tyron').reduce((s,l)=>{const c=chores.find(c=>c.id===l.chore_id);return s+(c?c.points:1);},0);
+  const ansPts=todayLogs.filter(l=>l.completed_by==='Ansonette').reduce((s,l)=>{const c=chores.find(c=>c.id===l.chore_id);return s+(c?c.points:1);},0);
+  const tyronTotal=todayLogs.filter(l=>l.completed_by==='Tyron').length;
+  const ansTotal=todayLogs.filter(l=>l.completed_by==='Ansonette').length;
+  const crown=tyronPts>ansPts?'👨':ansPts>tyronPts?'👩':'🤝';
+
+  document.getElementById('score-area').innerHTML=`
+    <div class="score-banner">
+      <div class="score-side tyron">
+        <div class="score-name">👨 Tyron ${tyronPts>=ansPts&&tyronPts>0?'🏆':''}</div>
+        <div class="score-pts">${tyronPts}</div>
+        <div class="score-sub">${tyronTotal} chore${tyronTotal!==1?'s':''} today</div>
+      </div>
+      <div class="score-side ansonette">
+        <div class="score-name">👩 Ansonette ${ansPts>tyronPts&&ansPts>0?'🏆':''}</div>
+        <div class="score-pts">${ansPts}</div>
+        <div class="score-sub">${ansTotal} chore${ansTotal!==1?'s':''} today</div>
+      </div>
+    </div>`;
+
+  const due=chores.filter(isDueToday);
+  const done=due.filter(c=>isDoneToday(c));
+  const pending=due.filter(c=>!isDoneToday(c));
+
+  document.getElementById('streak-area').innerHTML=`
+    <div style="padding:8px 16px 0;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:var(--muted)">${done.length}/${due.length} chores done today</span>
+      <span style="font-size:13px;color:var(--accent);font-weight:700">${due.length>0?Math.round(done.length/due.length*100):0}%</span>
+    </div>
+    <div style="margin:8px 16px 0;background:var(--border);border-radius:10px;height:6px;overflow:hidden">
+      <div style="background:linear-gradient(90deg,var(--accent),var(--accent2));height:100%;width:${due.length>0?Math.round(done.length/due.length*100):0}%;border-radius:10px;transition:width .4s"></div>
+    </div>`;
+
+  if(!chores.length){
+    document.getElementById('chores-today').innerHTML=`<div class="empty-state"><div class="big">🧹</div><div style="font-weight:700;margin-bottom:6px">No chores set up yet</div><div style="font-size:13px">Go to the ⚙️ Setup tab to add your chores</div></div>`;
+    return;
+  }
+
+  const renderCard=c=>{
+    const log=isDoneToday(c);
+    const freqPill=`<span class="chore-pill pill-${c.frequency}">${c.frequency}</span>`;
+    const assignPill=c.assigned_to==='rotating'?`<span class="chore-pill pill-rotating">🔄 rotating</span>`:c.assigned_to==='Tyron'?`<span class="chore-pill pill-tyron">👨 Tyron</span>`:`<span class="chore-pill pill-ansonette">👩 Ansonette</span>`;
+    const ptsPill=`<span class="chore-pill pill-pts">⭐ ${c.points}pt${c.points!==1?'s':''}</span>`;
+    return`<div class="chore-card ${log?'done':''}">
+      <div class="chore-emoji">${c.emoji||'🧹'}</div>
+      <div class="chore-info">
+        <div class="chore-name">${esc(c.name)}</div>
+        <div class="chore-meta">${freqPill}${assignPill}${ptsPill}</div>
+        ${log?`<div class="chore-done-by ${log.completed_by.toLowerCase()}">✓ Done by ${log.completed_by}</div>`:''}
+      </div>
+      <div class="chore-actions">
+        ${log
+          ?`<button class="undone-btn" onclick="undoChore('${log.id}')">↩</button>`
+          :`<button class="done-btn tyron" onclick="openWhoModal('${c.id}')">✓</button>`
+        }
+      </div>
+    </div>`;
+  };
+
+  let html='';
+  if(pending.length){html+=`<div class="section-header">🔲 Still to do (${pending.length})</div>${pending.map(renderCard).join('')}`;}
+  if(done.length){html+=`<div class="section-header">✅ Done today (${done.length})</div>${done.map(renderCard).join('')}`;}
+  document.getElementById('chores-today').innerHTML=`<div style="padding:0 16px">${html}</div>`;
+}
+
+// ── Who modal ─────────────────────────────────────────────
+let pendingChoreId=null;
+function openWhoModal(choreId){
+  const chore=chores.find(c=>c.id===choreId);
+  pendingChoreId=choreId;
+  document.getElementById('who-title').textContent=`Who did "${chore?.name}"?`;
+  document.getElementById('who-modal').style.display='flex';
+}
+async function markDone(person){
+  if(!pendingChoreId)return;
+  const chore=chores.find(c=>c.id===pendingChoreId);
+  try{
+    const res=await sbFetch('/rest/v1/chore_logs',{method:'POST',headers:{'Prefer':'return=representation'},body:JSON.stringify({chore_id:pendingChoreId,completed_by:person,completed_at:new Date().toISOString()})});
+    const log=Array.isArray(res)?res[0]:res;
+    todayLogs.unshift(log);
+    closeModal('who-modal');
+    pendingChoreId=null;
+    renderToday();
+    toast(`${chore?.emoji||'✅'} ${chore?.name} — done by ${person}! +${chore?.points||1}pt`);
+  }catch(e){toast('Error: '+e.message);}
+}
+async function undoChore(logId){
+  try{
+    await sbFetch(`/rest/v1/chore_logs?id=eq.${logId}`,{method:'DELETE'});
+    todayLogs=todayLogs.filter(l=>l.id!==logId);
+    renderToday();toast('↩ Chore unmarked');
+  }catch(e){toast('Error: '+e.message);}
+}
+
+// ── History ───────────────────────────────────────────────
+async function loadHistory(){
+  try{
+    const since=new Date();since.setDate(since.getDate()-14);
+    const logs=await sbFetch(`/rest/v1/chore_logs?completed_at=gte.${since.toISOString()}&order=completed_at.desc&limit=100&select=*`);
+    if(!logs.length){document.getElementById('history-content').innerHTML=`<div class="empty-state"><div class="big">📋</div><div>No history yet</div></div>`;return;}
+    document.getElementById('history-content').innerHTML=logs.map(l=>{
+      const c=chores.find(c=>c.id===l.chore_id);
+      return`<div class="hist-item">
+        <div class="hist-icon">${c?.emoji||'🧹'}</div>
+        <div class="hist-info">
+          <div class="hist-name">${esc(c?.name||'Unknown chore')}</div>
+          <div class="hist-by ${l.completed_by.toLowerCase()}">by ${l.completed_by} · ⭐ ${c?.points||1}pt</div>
+        </div>
+        <div class="hist-time">${new Date(l.completed_at).toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'})}<br>${new Date(l.completed_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>
+      </div>`;
+    }).join('');
+  }catch(e){toast('Error: '+e.message);}
+}
+
+// ── Setup ─────────────────────────────────────────────────
+function renderSetup(){
+  document.getElementById('chore-count').textContent=chores.length;
+  document.getElementById('chore-setup-list').innerHTML=chores.map(c=>`
+    <div class="chore-list-item">
+      <div class="cli-emoji">${c.emoji||'🧹'}</div>
+      <div class="cli-info">
+        <div class="cli-name">${esc(c.name)}</div>
+        <div class="cli-meta">${c.frequency} · ${c.assigned_to} · ⭐ ${c.points}pt${c.points!==1?'s':''}</div>
+      </div>
+      <button class="del-btn" onclick="deleteChore('${c.id}')">🗑</button>
+    </div>`).join('') || '<div style="color:var(--muted);font-size:13px;padding:10px 0">No chores yet — add some above!</div>';
+}
+
+function renderStarterPack(){
+  document.getElementById('starter-pack').innerHTML=STARTER_PACK.map((c,i)=>`
+    <button onclick="addStarterChore(${i})" style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--text);cursor:pointer;">
+      ${c.emoji} ${c.name}
+    </button>`).join('');
+}
+
+async function addStarterChore(idx){
+  const c=STARTER_PACK[idx];
+  if(chores.find(ch=>ch.name===c.name)){toast(`${c.name} already exists`);return;}
+  try{
+    const res=await sbFetch('/rest/v1/chores',{method:'POST',headers:{'Prefer':'return=representation'},body:JSON.stringify({name:c.name,emoji:c.emoji,frequency:c.freq,assigned_to:c.assign,points:c.pts})});
+    const nc=Array.isArray(res)?res[0]:res;chores.push(nc);chores.sort((a,b)=>a.name.localeCompare(b.name));
+    renderSetup();toast(`${c.emoji} ${c.name} added!`);
+  }catch(e){toast('Error: '+e.message);}
+}
+
+async function addChore(){
+  const name=document.getElementById('new-name').value.trim();
+  if(!name){toast('Enter a chore name');return;}
+  const emoji=document.getElementById('new-emoji').value.trim()||'🧹';
+  const freq=document.getElementById('new-freq').value;
+  const assign=document.getElementById('new-assign').value;
+  const pts=parseInt(document.getElementById('new-pts').value)||1;
+  try{
+    const res=await sbFetch('/rest/v1/chores',{method:'POST',headers:{'Prefer':'return=representation'},body:JSON.stringify({name,emoji,frequency:freq,assigned_to:assign,points:pts})});
+    const nc=Array.isArray(res)?res[0]:res;chores.push(nc);chores.sort((a,b)=>a.name.localeCompare(b.name));
+    document.getElementById('new-name').value='';document.getElementById('new-emoji').value='';document.getElementById('new-pts').value='1';
+    renderSetup();toast(`${emoji} ${name} added!`);
+  }catch(e){toast('Error: '+e.message);}
+}
+
+async function deleteChore(id){
+  if(!confirm('Delete this chore and all its history?'))return;
+  try{
+    await sbFetch(`/rest/v1/chores?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({active:false})});
+    chores=chores.filter(c=>c.id!==id);renderSetup();renderToday();toast('Chore deleted');
+  }catch(e){toast('Error: '+e.message);}
+}
+
+function closeModal(id){document.getElementById(id).style.display='none';}
+function closeModalClick(e){if(e.target===e.currentTarget)closeModal(e.currentTarget.id);}
+
+let toastTimer;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);}
+</script>
+</body>
+</html>
