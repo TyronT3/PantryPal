@@ -549,12 +549,8 @@ async function logManualSleep(){
 // ── Auth ──────────────────────────────────────────────────
 window.onload=()=>{
   document.getElementById('sleep-warn-input').value=getSleepWarn();
-  const {email,pass}=getSavedSession();
-  if(email&&pass){
-    document.getElementById('auth-email').value=email;
-    document.getElementById('auth-password').value=pass;
-    autoSignIn(email,pass);
-  }else{show('auth-screen');}
+  if(!localStorage.getItem('fp_email')){window.location.href='index.html';return;}
+  goToBabyPal();
 };
 
 async function autoSignIn(email,pass){

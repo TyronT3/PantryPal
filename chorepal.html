@@ -286,6 +286,7 @@
       <button class="who-btn tyron" onclick="markDone('Tyron')">👨 Tyron</button>
       <button class="who-btn ansonette" onclick="markDone('Ansonette')">👩 Ansonette</button>
     </div>
+    <button class="who-btn" style="width:100%;margin-top:8px;border-color:var(--accent);background:rgba(108,99,255,.15);color:var(--accent)" onclick="markDone('Both')">👨👩 Together (split points)</button>
     <button class="btn btn-secondary" onclick="closeModal('who-modal')">Cancel</button>
   </div>
 </div>
@@ -326,8 +327,8 @@ function clearSession(){localStorage.removeItem('fp_email');localStorage.removeI
 function getSaved(){return{email:localStorage.getItem('fp_email'),pass:localStorage.getItem('fp_pass')};}
 
 window.onload=()=>{
-  const {email,pass}=getSaved();
-  if(email&&pass){autoSignIn(email,pass);}else{show('auth-screen');}
+  if(!localStorage.getItem('fp_email')){window.location.href='index.html';return;}
+  openChoresPal();
   renderStarterPack();
 };
 
@@ -490,14 +491,18 @@ function openWhoModal(choreId){
 async function markDone(person){
   if(!pendingChoreId)return;
   const chore=chores.find(c=>c.id===pendingChoreId);
+  const shared=person==='Both';
+  const pts=chore?.points||1;
+  const eachPts=shared?Math.ceil(pts/2):pts;
   try{
-    const res=await sbFetch('/rest/v1/chore_logs',{method:'POST',headers:{'Prefer':'return=representation'},body:JSON.stringify({chore_id:pendingChoreId,completed_by:person,completed_at:new Date().toISOString()})});
+    const payload={chore_id:pendingChoreId,completed_by:shared?'Tyron':person,completed_at:new Date().toISOString(),shared,completed_by_2:shared?'Ansonette':null};
+    const res=await sbFetch('/rest/v1/chore_logs',{method:'POST',headers:{'Prefer':'return=representation'},body:JSON.stringify(payload)});
     const log=Array.isArray(res)?res[0]:res;
     todayLogs.unshift(log);
     closeModal('who-modal');
     pendingChoreId=null;
     renderToday();
-    toast(`${chore?.emoji||'✅'} ${chore?.name} — done by ${person}! +${chore?.points||1}pt`);
+    toast(shared?`👨👩 Together! +${eachPts}pts each`:`${chore?.emoji||'✅'} ${chore?.name} — ${person}! +${pts}pt`);
   }catch(e){toast('Error: '+e.message);}
 }
 async function undoChore(logId){

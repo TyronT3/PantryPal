@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>FamilyPal</title>
 <style>
-  :root{--bg:#0f1117;--surface:#1a1d27;--card:#22263a;--accent:#6c63ff;--text:#e8eaf6;--muted:#8892b0;--border:#2e3250;--radius:16px;}
+  :root{--bg:#0f1117;--surface:#1a1d27;--card:#22263a;--accent:#6c63ff;--text:#e8eaf6;--muted:#8892b0;--border:#2e3250;--radius:14px;}
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;}
-  #auth-screen,#home-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .wrap{width:100%;max-width:360px;text-align:center;}
   .logo{font-size:56px;margin-bottom:8px;}
   .app-title{font-size:30px;font-weight:800;background:linear-gradient(135deg,#6c63ff,#e91e8c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;}
-  .app-sub{color:var(--muted);font-size:14px;margin-bottom:28px;text-align:center;}
-  .auth-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;width:100%;max-width:360px;}
+  .app-sub{color:var(--muted);font-size:14px;margin-bottom:28px;}
+  .auth-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;text-align:left;}
   .auth-box h2{font-size:18px;margin-bottom:20px;}
   .field{margin-bottom:14px;}
   .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
@@ -23,26 +23,12 @@
   .btn-primary{background:linear-gradient(135deg,#6c63ff,#8b5cf6);color:#fff;}
   .btn-secondary{background:var(--card);color:var(--text);border:1px solid var(--border);margin-top:10px;}
   .auth-error{color:#e74c3c;font-size:13px;margin-top:10px;text-align:center;min-height:18px;}
-  .home-apps{display:flex;flex-direction:column;gap:14px;width:100%;max-width:380px;}
-  .app-card{border-radius:20px;padding:24px;text-align:center;cursor:pointer;transition:transform .15s;border:1px solid var(--border);}
-  .app-card:active{transform:scale(.97);}
-  .app-card.pantry{background:linear-gradient(135deg,#1a1d27,#22263a);border-color:#2e3250;}
-  .app-card.baby{background:linear-gradient(135deg,#1a0a1e,#2a1040);border-color:#3a1a5a;}
-  .app-card.chores{background:linear-gradient(135deg,#0a1e1a,#0a2010);border-color:#1a4a30;}
-  .app-card-icon{font-size:44px;margin-bottom:10px;}
-  .app-card-title{font-size:22px;font-weight:800;margin-bottom:4px;}
-  .app-card.pantry .app-card-title{background:linear-gradient(135deg,#6c63ff,#ff6584);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-  .app-card.baby .app-card-title{background:linear-gradient(135deg,#e91e8c,#9c27b0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-  .app-card.chores .app-card-title{background:linear-gradient(135deg,#00c896,#0088ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-  .app-card-sub{font-size:12px;color:var(--muted);}
-  .signout{margin-top:20px;font-size:13px;color:var(--muted);cursor:pointer;text-decoration:underline;}
   .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;}
   @keyframes spin{to{transform:rotate(360deg);}}
 </style>
 </head>
 <body>
-
-<div id="auth-screen">
+<div class="wrap">
   <div class="logo">🌟</div>
   <div class="app-title">FamilyPal</div>
   <div class="app-sub">Your family life, all in one place</div>
@@ -55,73 +41,45 @@
     <div class="auth-error" id="auth-error"></div>
   </div>
 </div>
-
-<div id="home-screen" style="display:none">
-  <div class="logo">🌟</div>
-  <div class="app-title">FamilyPal</div>
-  <div class="app-sub">What would you like to do?</div>
-  <div class="home-apps">
-    <div class="app-card pantry" onclick="go('pantrypal.html')">
-      <div class="app-card-icon">🥫</div>
-      <div class="app-card-title">PantryPal</div>
-      <div class="app-card-sub">Pantry tracker · Shopping list · Inventory</div>
-    </div>
-    <div class="app-card baby" onclick="go('babypal.html')">
-      <div class="app-card-icon">🍼</div>
-      <div class="app-card-title">BabyPal</div>
-      <div class="app-card-sub">Feeds · Diapers · Sleep · Geomé's day</div>
-    </div>
-    <div class="app-card chores" onclick="go('chorepal.html')">
-      <div class="app-card-icon">🧹</div>
-      <div class="app-card-title">ChoresPal</div>
-      <div class="app-card-sub">Daily chores · Points · Tyron vs Ansonette</div>
-    </div>
-  </div>
-  <div class="signout" onclick="signOut()">Sign out</div>
-</div>
-
 <script>
 const SB_URL='https://kfbvmabnblxwznmrjhny.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmYnZtYWJuYmx4d3pubXJqaG55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MjM1MjQsImV4cCI6MjA5NjM5OTUyNH0._m5LmH81Xk3RU63jvKO7vs8R4lnPINHD3MMAXJwQOxc';
 
-async function sbAuth(email,pass){
-  const r=await fetch(SB_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY},body:JSON.stringify({email,password:pass})});
-  const d=await r.json();
-  if(!r.ok)throw new Error(d.message||d.error||r.status);
-  return d;
-}
-
-function save(e,p){localStorage.setItem('fp_email',e);localStorage.setItem('fp_pass',p);}
-function clear(){localStorage.removeItem('fp_email');localStorage.removeItem('fp_pass');}
-function saved(){return{email:localStorage.getItem('fp_email'),pass:localStorage.getItem('fp_pass')};}
-function go(url){window.location.href=url;}
-
-window.onload=async()=>{
-  const {email,pass}=saved();
-  if(email&&pass){
-    try{await sbAuth(email,pass);showHome();}
-    catch(e){showAuth();}
-  }else{showAuth();}
+window.onload=()=>{
+  const e=localStorage.getItem('fp_email'),p=localStorage.getItem('fp_pass');
+  if(e&&p) autoLogin(e,p);
 };
 
-function showAuth(){document.getElementById('auth-screen').style.display='flex';document.getElementById('home-screen').style.display='none';}
-function showHome(){document.getElementById('auth-screen').style.display='none';document.getElementById('home-screen').style.display='flex';}
+async function autoLogin(email,pass){
+  try{
+    const r=await fetch(SB_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY},body:JSON.stringify({email,password:pass})});
+    if(r.ok){window.location.href='home.html';}
+  }catch(e){}
+}
 
 async function signIn(){
-  const email=document.getElementById('auth-email').value.trim(),pass=document.getElementById('auth-password').value;
+  const email=document.getElementById('auth-email').value.trim();
+  const pass=document.getElementById('auth-password').value;
   document.getElementById('auth-error').textContent='';
-  try{await sbAuth(email,pass);save(email,pass);showHome();}
-  catch(e){document.getElementById('auth-error').textContent=e.message;}
+  try{
+    const r=await fetch(SB_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY},body:JSON.stringify({email,password:pass})});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.message||d.error||'Login failed');
+    localStorage.setItem('fp_email',email);
+    localStorage.setItem('fp_pass',pass);
+    window.location.href='home.html';
+  }catch(e){document.getElementById('auth-error').textContent=e.message;}
 }
+
 async function signUp(){
-  const email=document.getElementById('auth-email').value.trim(),pass=document.getElementById('auth-password').value;
+  const email=document.getElementById('auth-email').value.trim();
+  const pass=document.getElementById('auth-password').value;
   document.getElementById('auth-error').textContent='';
   if(pass.length<6){document.getElementById('auth-error').textContent='Password must be 6+ chars.';return;}
   const r=await fetch(SB_URL+'/auth/v1/signup',{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY},body:JSON.stringify({email,password:pass})});
   if(r.ok){document.getElementById('auth-error').style.color='#2ecc71';document.getElementById('auth-error').textContent='Account created! Please sign in.';}
   else{const d=await r.json();document.getElementById('auth-error').textContent=d.message||'Error';}
 }
-function signOut(){clear();showAuth();}
 </script>
 </body>
 </html>
