@@ -328,7 +328,8 @@ function getSaved(){return{email:localStorage.getItem('fp_email'),pass:localStor
 
 window.onload=()=>{
   if(!localStorage.getItem('fp_email')){window.location.href='index.html';return;}
-  openChoresPal();
+  document.getElementById('chore-screen').style.display='flex';
+  loadAll();
   renderStarterPack();
 };
 
