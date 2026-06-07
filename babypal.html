@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>BabyPal — Geomé</title>
 <style>
-  :root {
+  :root{
     --bg:#0f0f1a;--surface:#1a1a2e;--card:#22223a;--accent:#e91e8c;--accent2:#9c27b0;
     --blue:#2196f3;--green:#4caf50;--yellow:#ff9800;--red:#f44336;--purple:#9c27b0;
     --teal:#00bcd4;--pink:#e91e8c;
     --text:#f0e6f6;--muted:#9e8fb0;--border:#2e2a4a;--radius:16px;
+    --sleep-warn:6;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;}
@@ -35,7 +36,7 @@
 
   /* HOME DASHBOARD */
   .home-apps{display:flex;flex-direction:column;gap:16px;width:100%;max-width:360px;}
-  .app-card{border-radius:20px;padding:28px;text-align:center;cursor:pointer;transition:transform .15s,opacity .15s;border:1px solid var(--border);}
+  .app-card{border-radius:20px;padding:28px;text-align:center;cursor:pointer;transition:transform .15s;border:1px solid var(--border);}
   .app-card:active{transform:scale(.97);}
   .app-card.pantry{background:linear-gradient(135deg,#1a1d27,#22263a);border-color:#2e3250;}
   .app-card.baby{background:linear-gradient(135deg,#1a0a1e,#2a1040);border-color:#3a1a5a;}
@@ -47,7 +48,7 @@
   .home-signout{margin-top:24px;font-size:13px;color:var(--muted);cursor:pointer;text-decoration:underline;}
 
   /* BABYPAL APP */
-  #baby-screen{display:none;flex-direction:column;min-height:100vh;max-width:600px;margin:0 auto;}
+  #baby-screen{display:none;flex-direction:column;min-height:100vh;max-width:600px;margin:0 auto;padding-bottom:100px;}
   header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
   .header-left{display:flex;align-items:center;gap:10px;}
   .header-icon{font-size:24px;}
@@ -56,11 +57,19 @@
   .icon-btn{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 9px;color:var(--text);cursor:pointer;font-size:15px;}
 
   /* TABS */
-  .tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;}
-  .tab{flex:1;padding:12px 8px;text-align:center;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;min-width:60px;}
+  .tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);}
+  .tab{flex:1;padding:12px 4px;text-align:center;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;}
   .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
 
-  /* TODAY SUMMARY */
+  /* SLEEP BANNER */
+  .sleep-banner{background:linear-gradient(135deg,#0d2a3a,#0d1a3a);border:1px solid var(--teal);border-radius:12px;margin:12px 16px 0;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .sleep-banner-left{display:flex;align-items:center;gap:10px;}
+  .sleep-banner-icon{font-size:28px;}
+  .sleep-banner-title{font-size:14px;font-weight:700;color:var(--teal);}
+  .sleep-banner-timer{font-size:22px;font-weight:800;color:var(--teal);font-variant-numeric:tabular-nums;}
+  .wake-btn{background:var(--yellow);border:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;color:#000;cursor:pointer;flex-shrink:0;}
+
+  /* SUMMARY */
   .summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:12px 16px;}
   .summary-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;}
   .summary-card .s-icon{font-size:28px;margin-bottom:4px;}
@@ -74,7 +83,7 @@
   .summary-card.purple .s-val{color:var(--purple);}
   .summary-card.teal .s-val{color:var(--teal);}
 
-  /* QUICK LOG */
+  /* QUICK LOG GRID */
   .quicklog-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:12px 16px;}
   .ql-btn{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 12px;text-align:center;cursor:pointer;transition:transform .15s;}
   .ql-btn:active{transform:scale(.95);}
@@ -88,6 +97,11 @@
   .ql-btn.purple{border-color:var(--purple);background:rgba(156,39,176,.08);}
   .ql-btn.teal{border-color:var(--teal);background:rgba(0,188,212,.08);}
   .ql-btn.red{border-color:var(--red);background:rgba(244,67,54,.08);}
+  .ql-btn.sleep-active{border-color:var(--yellow);background:rgba(255,152,0,.15);}
+
+  /* BIG LOG FAB */
+  .log-fab{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:30px;padding:16px 40px;font-size:17px;font-weight:800;color:#fff;cursor:pointer;box-shadow:0 4px 24px rgba(233,30,140,.5);z-index:50;display:flex;align-items:center;gap:10px;white-space:nowrap;}
+  .log-fab:active{opacity:.85;}
 
   /* HISTORY */
   .history-section{padding:12px 16px;}
@@ -105,9 +119,16 @@
   .chart-card h3{font-size:14px;font-weight:700;margin-bottom:12px;color:var(--muted);}
   .bar-chart{display:flex;align-items:flex-end;gap:4px;height:80px;}
   .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
-  .bar{width:100%;border-radius:4px 4px 0 0;min-height:2px;transition:height .3s;}
+  .bar{width:100%;border-radius:4px 4px 0 0;min-height:2px;}
   .bar-lbl{font-size:9px;color:var(--muted);text-align:center;}
   .bar-val{font-size:9px;color:var(--text);text-align:center;}
+
+  /* SETTINGS */
+  .settings-section{padding:16px;}
+  .settings-row{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+  .settings-row-info label{font-size:14px;font-weight:600;display:block;}
+  .settings-row-info small{font-size:12px;color:var(--muted);}
+  .settings-row input[type=number]{width:70px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:15px;text-align:center;outline:none;}
 
   /* MODAL */
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;display:flex;align-items:flex-end;justify-content:center;}
@@ -117,8 +138,8 @@
   .modal-close{float:right;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;margin-top:-4px;}
   .modal .btn{margin-top:8px;}
   .section-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;margin-top:14px;}
-  .type-toggle{display:flex;gap:8px;margin-bottom:14px;}
-  .type-opt{flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;cursor:pointer;text-align:center;font-weight:600;}
+  .type-toggle{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .type-opt{flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;cursor:pointer;text-align:center;font-weight:600;min-width:70px;}
   .type-opt.selected{border-color:var(--accent);background:rgba(233,30,140,.15);color:var(--accent);}
   .reason-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px;}
   .reason-opt{padding:8px 4px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:12px;cursor:pointer;text-align:center;}
@@ -127,7 +148,17 @@
   .time-row label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;min-width:60px;}
   .time-row input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:14px;outline:none;}
 
-  #toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);border-radius:20px;padding:10px 20px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:200;white-space:nowrap;}
+  /* LOG PICKER MODAL */
+  .log-picker-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:8px 0;}
+  .lp-btn{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 12px;text-align:center;cursor:pointer;transition:transform .15s;}
+  .lp-btn:active{transform:scale(.95);}
+  .lp-btn .lp-icon{font-size:28px;margin-bottom:6px;}
+  .lp-btn .lp-label{font-size:13px;font-weight:700;}
+
+  /* WARNING MODAL */
+  .warn-box{background:#2d1a00;border:1px solid var(--yellow);border-radius:12px;padding:16px;margin-bottom:16px;font-size:13px;color:var(--yellow);line-height:1.6;}
+
+  #toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);border-radius:20px;padding:10px 20px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:300;white-space:nowrap;}
   #toast.show{opacity:1;}
   .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px;}
   @keyframes spin{to{transform:rotate(360deg);}}
@@ -180,6 +211,7 @@
       <div class="header-title"><span>Baby</span>Pal — Geomé</div>
     </div>
     <div style="display:flex;gap:6px">
+      <button class="icon-btn" onclick="openModal('settings-modal')" title="Settings">⚙️</button>
       <button class="icon-btn" onclick="goHome()">🏠</button>
     </div>
   </header>
@@ -191,61 +223,54 @@
     <div class="tab" onclick="switchTab('trends',this)">📈 Trends</div>
   </div>
 
-  <div id="tab-today">
-    <div id="summary-content"><div class="loading"><span class="spinner"></span></div></div>
-  </div>
-
-  <div id="tab-log" style="display:none">
-    <div class="quicklog-grid">
-      <div class="ql-btn pink" onclick="openModal('feed-modal')">
-        <div class="ql-icon">🍼</div>
-        <div class="ql-label">Bottle Feed</div>
-        <div class="ql-sub">Log milk amount</div>
-      </div>
-      <div class="ql-btn purple" onclick="openModal('breast-modal')">
-        <div class="ql-icon">🤱</div>
-        <div class="ql-label">Breast Feed</div>
-        <div class="ql-sub">Log duration & side</div>
-      </div>
-      <div class="ql-btn blue" onclick="logDiaper('wet')">
-        <div class="ql-icon">💧</div>
-        <div class="ql-label">Wet Diaper</div>
-        <div class="ql-sub">Tap to log now</div>
-      </div>
-      <div class="ql-btn yellow" onclick="logDiaper('soiled')">
-        <div class="ql-icon">💩</div>
-        <div class="ql-label">Soiled Diaper</div>
-        <div class="ql-sub">Tap to log now</div>
-      </div>
-      <div class="ql-btn green" onclick="openModal('sleep-modal')">
-        <div class="ql-icon">😴</div>
-        <div class="ql-label">Sleep</div>
-        <div class="ql-sub">Log sleep session</div>
-      </div>
-      <div class="ql-btn red" onclick="openModal('cry-modal')">
-        <div class="ql-icon">😢</div>
-        <div class="ql-label">Crying / Fussy</div>
-        <div class="ql-sub">Log episode</div>
-      </div>
-      <div class="ql-btn teal" onclick="openModal('pump-modal')">
-        <div class="ql-icon">🥛</div>
-        <div class="ql-label">Pump</div>
-        <div class="ql-sub">Log pumping session</div>
-      </div>
-      <div class="ql-btn yellow" onclick="openModal('meal-modal')">
-        <div class="ql-icon">🍽️</div>
-        <div class="ql-label">Mama's Meal</div>
-        <div class="ql-sub">Log what she ate</div>
+  <!-- Sleep banner (shown when sleeping) -->
+  <div class="sleep-banner" id="sleep-banner" style="display:none">
+    <div class="sleep-banner-left">
+      <div class="sleep-banner-icon">😴</div>
+      <div>
+        <div class="sleep-banner-title">Geomé is sleeping</div>
+        <div class="sleep-banner-timer" id="sleep-timer">0:00</div>
       </div>
     </div>
+    <button class="wake-btn" onclick="wakeUp()">☀️ She woke up!</button>
   </div>
 
-  <div id="tab-history" style="display:none">
-    <div id="history-content"><div class="loading"><span class="spinner"></span></div></div>
+  <div id="tab-today"><div id="summary-content"><div class="loading"><span class="spinner"></span></div></div></div>
+  <div id="tab-log" style="display:none">
+    <div class="quicklog-grid">
+      <div class="ql-btn pink" onclick="openModal('feed-modal')"><div class="ql-icon">🍼</div><div class="ql-label">Bottle Feed</div><div class="ql-sub">Log milk amount</div></div>
+      <div class="ql-btn purple" onclick="openModal('breast-modal')"><div class="ql-icon">🤱</div><div class="ql-label">Breast Feed</div><div class="ql-sub">Duration & side</div></div>
+      <div class="ql-btn blue" onclick="logDiaper('wet')"><div class="ql-icon">💧</div><div class="ql-label">Wet Diaper</div><div class="ql-sub">Tap to log now</div></div>
+      <div class="ql-btn yellow" onclick="logDiaper('soiled')"><div class="ql-icon">💩</div><div class="ql-label">Soiled Diaper</div><div class="ql-sub">Tap to log now</div></div>
+      <div class="ql-btn green" id="sleep-btn" onclick="handleSleepBtn()"><div class="ql-icon" id="sleep-btn-icon">😴</div><div class="ql-label" id="sleep-btn-label">She fell asleep</div><div class="ql-sub" id="sleep-btn-sub">Start sleep timer</div></div>
+      <div class="ql-btn red" onclick="openModal('cry-modal')"><div class="ql-icon">😢</div><div class="ql-label">Crying / Fussy</div><div class="ql-sub">Log episode</div></div>
+      <div class="ql-btn teal" onclick="openModal('pump-modal')"><div class="ql-icon">🥛</div><div class="ql-label">Pump</div><div class="ql-sub">Log session</div></div>
+      <div class="ql-btn yellow" onclick="openModal('meal-modal')"><div class="ql-icon">🍽️</div><div class="ql-label">Mama's Meal</div><div class="ql-sub">Log what she ate</div></div>
+    </div>
   </div>
+  <div id="tab-history" style="display:none"><div id="history-content"><div class="loading"><span class="spinner"></span></div></div></div>
+  <div id="tab-trends" style="display:none"><div id="trends-content"><div class="loading"><span class="spinner"></span></div></div></div>
 
-  <div id="tab-trends" style="display:none">
-    <div id="trends-content"><div class="loading"><span class="spinner"></span></div></div>
+  <!-- Big Log FAB -->
+  <button class="log-fab" onclick="openModal('log-picker-modal')">➕ Log Something</button>
+</div>
+
+<!-- MODAL: Log Picker -->
+<div class="modal-overlay" id="log-picker-modal" style="display:none" onclick="closeModalClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('log-picker-modal')">✕</button>
+    <h2>➕ What are you logging?</h2>
+    <div class="log-picker-grid">
+      <div class="lp-btn" onclick="closeModal('log-picker-modal');openModal('feed-modal')"><div class="lp-icon">🍼</div><div class="lp-label">Bottle Feed</div></div>
+      <div class="lp-btn" onclick="closeModal('log-picker-modal');openModal('breast-modal')"><div class="lp-icon">🤱</div><div class="lp-label">Breast Feed</div></div>
+      <div class="lp-btn" onclick="closeModal('log-picker-modal');logDiaper('wet')"><div class="lp-icon">💧</div><div class="lp-label">Wet Diaper</div></div>
+      <div class="lp-btn" onclick="closeModal('log-picker-modal');logDiaper('soiled')"><div class="lp-icon">💩</div><div class="lp-label">Soiled Diaper</div></div>
+      <div class="lp-btn" onclick="closeModal('log-picker-modal');handleSleepBtn()"><div class="lp-icon" id="lp-sleep-icon">😴</div><div class="lp-label" id="lp-sleep-label">She fell asleep</div></div>
+      <div class="lp-btn" onclick="closeModal('log-picker-modal');openModal('cry-modal')"><div class="lp-icon">😢</div><div class="lp-label">Crying / Fussy</div></div>
+      <div class="lp-btn" onclick="closeModal('log-picker-modal');openModal('pump-modal')"><div class="lp-icon">🥛</div><div class="lp-label">Pump</div></div>
+      <div class="lp-btn" onclick="closeModal('log-picker-modal');openModal('meal-modal')"><div class="lp-icon">🍽️</div><div class="lp-label">Mama's Meal</div></div>
+    </div>
   </div>
 </div>
 
@@ -282,17 +307,31 @@
   </div>
 </div>
 
-<!-- MODAL: Sleep -->
-<div class="modal-overlay" id="sleep-modal" style="display:none" onclick="closeModalClick(event)">
+<!-- MODAL: Wake up (with warning support) -->
+<div class="modal-overlay" id="wake-modal" style="display:none" onclick="closeModalClick(event)">
   <div class="modal">
     <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal('sleep-modal')">✕</button>
-    <h2>😴 Sleep Session</h2>
-    <div class="time-row"><label>Slept at</label><input type="datetime-local" id="sleep-start"></div>
-    <div class="time-row"><label>Woke at</label><input type="datetime-local" id="sleep-end"></div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Leave "woke at" empty if she's still sleeping.</div>
-    <div class="field"><label>Notes (optional)</label><input type="text" id="sleep-notes" placeholder="e.g. slept in pram"></div>
-    <button class="btn btn-primary" onclick="logSleep()">Log Sleep</button>
+    <button class="modal-close" onclick="closeModal('wake-modal')">✕</button>
+    <h2>☀️ She woke up!</h2>
+    <div class="warn-box" id="wake-warning" style="display:none"></div>
+    <div class="time-row"><label>Woke at</label><input type="datetime-local" id="wake-time"></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Adjust if needed before saving.</div>
+    <button class="btn btn-primary" onclick="confirmWakeUp()">☀️ Save Wake Up</button>
+    <button class="btn btn-secondary" onclick="closeModal('wake-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- MODAL: No sleep started warning -->
+<div class="modal-overlay" id="nosleep-modal" style="display:none" onclick="closeModalClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('nosleep-modal')">✕</button>
+    <h2>⚠️ No sleep started</h2>
+    <div class="warn-box">No sleep session is currently active. Did you forget to tap "She fell asleep"? You can enter the start time manually below.</div>
+    <div class="time-row"><label>Fell asleep</label><input type="datetime-local" id="nosleep-start"></div>
+    <div class="time-row"><label>Woke up</label><input type="datetime-local" id="nosleep-end"></div>
+    <button class="btn btn-primary" onclick="logManualSleep()">Save Sleep Session</button>
+    <button class="btn btn-secondary" onclick="closeModal('nosleep-modal')">Cancel</button>
   </div>
 </div>
 
@@ -340,7 +379,7 @@
     <button class="modal-close" onclick="closeModal('meal-modal')">✕</button>
     <h2>🍽️ Mama's Meal</h2>
     <div class="section-label">Meal type</div>
-    <div class="type-toggle" style="flex-wrap:wrap">
+    <div class="type-toggle">
       <button class="type-opt selected" data-m="breakfast" onclick="selectMealType('breakfast',this)">🌅 Breakfast</button>
       <button class="type-opt" data-m="lunch" onclick="selectMealType('lunch',this)">☀️ Lunch</button>
       <button class="type-opt" data-m="dinner" onclick="selectMealType('dinner',this)">🌙 Dinner</button>
@@ -351,6 +390,25 @@
     <div class="time-row"><label>Time</label><input type="datetime-local" id="meal-time"></div>
     <div class="field"><label>Notes (optional)</label><textarea id="meal-notes" placeholder="e.g. tried a new spice, felt bloated after" style="min-height:60px"></textarea></div>
     <button class="btn btn-primary" onclick="logMeal()">Log Meal</button>
+  </div>
+</div>
+
+<!-- MODAL: Settings -->
+<div class="modal-overlay" id="settings-modal" style="display:none" onclick="closeModalClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('settings-modal')">✕</button>
+    <h2>⚙️ Settings</h2>
+    <div class="settings-section">
+      <div class="settings-row">
+        <div class="settings-row-info">
+          <label>Sleep warning threshold</label>
+          <small>Warn if sleep exceeds this many hours</small>
+        </div>
+        <input type="number" id="sleep-warn-input" min="1" max="24" value="6" onchange="saveSleepWarn()">
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--muted);padding:0 16px">More settings will appear here as BabyPal grows.</p>
   </div>
 </div>
 
@@ -374,12 +432,140 @@ function fmtTime(ts){return new Date(ts).toLocaleTimeString([],{hour:'2-digit',m
 function fmtDateTime(ts){return new Date(ts).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});}
 function todayRange(){const s=new Date();s.setHours(0,0,0,0);const e=new Date();e.setHours(23,59,59,999);return{start:s.toISOString(),end:e.toISOString()};}
 
+// ── Session persistence ───────────────────────────────────
+function saveSession(email,pass){localStorage.setItem('fp_email',email);localStorage.setItem('fp_pass',pass);}
+function clearSession(){localStorage.removeItem('fp_email');localStorage.removeItem('fp_pass');}
+function getSavedSession(){return{email:localStorage.getItem('fp_email'),pass:localStorage.getItem('fp_pass')};}
+
+// ── Sleep warn setting ────────────────────────────────────
+function getSleepWarn(){return parseInt(localStorage.getItem('bp_sleep_warn')||'6');}
+function saveSleepWarn(){const v=parseInt(document.getElementById('sleep-warn-input').value)||6;localStorage.setItem('bp_sleep_warn',v);toast(`Sleep warning set to ${v} hours`);}
+
+// ── Sleep state ───────────────────────────────────────────
+let sleepStart=null;
+let sleepTimerInterval=null;
+
+function loadSleepState(){
+  const s=localStorage.getItem('bp_sleep_start');
+  if(s){sleepStart=new Date(s);startSleepTimer();}
+  updateSleepUI();
+}
+function saveSleepState(){if(sleepStart)localStorage.setItem('bp_sleep_start',sleepStart.toISOString());else localStorage.removeItem('bp_sleep_start');}
+
+function startSleepTimer(){
+  if(sleepTimerInterval)clearInterval(sleepTimerInterval);
+  sleepTimerInterval=setInterval(()=>{
+    if(!sleepStart)return;
+    const diff=Math.floor((Date.now()-sleepStart)/1000);
+    const h=Math.floor(diff/3600),m=Math.floor((diff%3600)/60),s=diff%60;
+    document.getElementById('sleep-timer').textContent=`${h>0?h+':':''}${String(m).padStart(h>0?2:1,'0')}:${String(s).padStart(2,'0')}`;
+  },1000);
+}
+
+function updateSleepUI(){
+  const banner=document.getElementById('sleep-banner');
+  const btn=document.getElementById('sleep-btn');
+  const icon=document.getElementById('sleep-btn-icon');
+  const label=document.getElementById('sleep-btn-label');
+  const sub=document.getElementById('sleep-btn-sub');
+  const lpIcon=document.getElementById('lp-sleep-icon');
+  const lpLabel=document.getElementById('lp-sleep-label');
+  if(sleepStart){
+    banner.style.display='flex';
+    btn.className='ql-btn sleep-active';
+    icon.textContent='☀️';label.textContent='She woke up!';sub.textContent='Stop sleep timer';
+    if(lpIcon)lpIcon.textContent='☀️';
+    if(lpLabel)lpLabel.textContent='She woke up!';
+  }else{
+    banner.style.display='none';
+    btn.className='ql-btn green';
+    icon.textContent='😴';label.textContent='She fell asleep';sub.textContent='Start sleep timer';
+    if(lpIcon)lpIcon.textContent='😴';
+    if(lpLabel)lpLabel.textContent='She fell asleep';
+  }
+}
+
+function handleSleepBtn(){
+  if(sleepStart){wakeUp();}
+  else{
+    sleepStart=new Date();
+    saveSleepState();
+    startSleepTimer();
+    updateSleepUI();
+    toast('😴 Sleep timer started!');
+    if(activeTab==='today')loadToday();
+  }
+}
+
+function wakeUp(){
+  if(!sleepStart){
+    // No sleep started
+    document.getElementById('nosleep-start').value=nowLocal();
+    document.getElementById('nosleep-end').value=nowLocal();
+    openModal('nosleep-modal');
+    return;
+  }
+  const wakeTime=new Date();
+  const diffMins=Math.round((wakeTime-sleepStart)/60000);
+  const warnHours=getSleepWarn();
+  document.getElementById('wake-time').value=nowLocal();
+  const warnEl=document.getElementById('wake-warning');
+  if(diffMins>warnHours*60){
+    const h=Math.floor(diffMins/60),m=diffMins%60;
+    warnEl.style.display='block';
+    warnEl.textContent=`⚠️ That's a ${h}h ${m}m sleep — does that look right? Adjust the wake time below if needed.`;
+  }else{warnEl.style.display='none';}
+  openModal('wake-modal');
+}
+
+async function confirmWakeUp(){
+  const wakeTime=new Date(document.getElementById('wake-time').value);
+  if(!sleepStart){closeModal('wake-modal');return;}
+  const diffMins=Math.round((wakeTime-sleepStart)/60000);
+  try{
+    await sbFetch('/rest/v1/baby_sleep',{method:'POST',body:JSON.stringify({sleep_start:sleepStart.toISOString(),sleep_end:wakeTime.toISOString(),duration_mins:diffMins,logged_at:sleepStart.toISOString()})});
+    clearInterval(sleepTimerInterval);sleepTimerInterval=null;
+    sleepStart=null;saveSleepState();updateSleepUI();
+    closeModal('wake-modal');
+    toast(`😴 Sleep logged — ${Math.floor(diffMins/60)}h ${diffMins%60}m`);
+    if(activeTab==='today')loadToday();
+  }catch(e){toast('Error: '+e.message);}
+}
+
+async function logManualSleep(){
+  const start=document.getElementById('nosleep-start').value;
+  const end=document.getElementById('nosleep-end').value;
+  if(!start||!end){toast('Enter both start and end times');return;}
+  const diffMins=Math.round((new Date(end)-new Date(start))/60000);
+  if(diffMins<0){toast('End time must be after start time');return;}
+  try{
+    await sbFetch('/rest/v1/baby_sleep',{method:'POST',body:JSON.stringify({sleep_start:new Date(start).toISOString(),sleep_end:new Date(end).toISOString(),duration_mins:diffMins,logged_at:new Date(start).toISOString()})});
+    closeModal('nosleep-modal');
+    toast(`😴 Sleep logged — ${Math.floor(diffMins/60)}h ${diffMins%60}m`);
+    if(activeTab==='today')loadToday();
+  }catch(e){toast('Error: '+e.message);}
+}
+
 // ── Auth ──────────────────────────────────────────────────
-window.onload=()=>show('auth-screen');
+window.onload=()=>{
+  document.getElementById('sleep-warn-input').value=getSleepWarn();
+  const {email,pass}=getSavedSession();
+  if(email&&pass){
+    document.getElementById('auth-email').value=email;
+    document.getElementById('auth-password').value=pass;
+    autoSignIn(email,pass);
+  }else{show('auth-screen');}
+};
+
+async function autoSignIn(email,pass){
+  try{await sbFetch('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email,password:pass})});enterHome();}
+  catch(e){show('auth-screen');}
+}
+
 async function signIn(){
   const email=document.getElementById('auth-email').value.trim(),pass=document.getElementById('auth-password').value;
   document.getElementById('auth-error').textContent='';
-  try{await sbFetch('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email,password:pass})});enterHome();}
+  try{await sbFetch('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email,password:pass})});saveSession(email,pass);enterHome();}
   catch(e){document.getElementById('auth-error').textContent=e.message;}
 }
 async function signUp(){
@@ -389,10 +575,10 @@ async function signUp(){
   try{await sbFetch('/auth/v1/signup',{method:'POST',body:JSON.stringify({email,password:pass})});document.getElementById('auth-error').style.color='var(--green)';document.getElementById('auth-error').textContent='Account created! Please sign in.';}
   catch(e){document.getElementById('auth-error').textContent=e.message;}
 }
-function signOut(){hide('home-screen');hide('baby-screen');show('auth-screen');}
+function signOut(){clearSession();hide('home-screen');hide('baby-screen');show('auth-screen');}
 function enterHome(){hide('auth-screen');document.getElementById('home-screen').style.display='flex';}
 function goHome(){hide('baby-screen');document.getElementById('home-screen').style.display='flex';}
-function goToBabyPal(){document.getElementById('home-screen').style.display='none';document.getElementById('baby-screen').style.display='flex';loadToday();}
+function goToBabyPal(){document.getElementById('home-screen').style.display='none';document.getElementById('baby-screen').style.display='flex';loadSleepState();loadToday();}
 function goToPantryPal(){window.location.href='https://tyront3.github.io/PantryPal/';}
 
 // ── Tabs ──────────────────────────────────────────────────
@@ -418,61 +604,26 @@ async function loadToday(){
       sbFetch(`/rest/v1/baby_crying?logged_at=gte.${start}&logged_at=lte.${end}&select=*`),
       sbFetch(`/rest/v1/baby_pumping?logged_at=gte.${start}&logged_at=lte.${end}&select=*`)
     ]);
-
     const totalMl=feeds.filter(f=>f.feed_type==='bottle').reduce((s,f)=>s+(f.amount_ml||0),0);
     const breastFeeds=feeds.filter(f=>f.feed_type==='breast');
     const lastFeed=feeds[0];
     const wetDiapers=diapers.filter(d=>d.diaper_type==='wet').length;
     const soiledDiapers=diapers.filter(d=>d.diaper_type==='soiled').length;
-    const totalSleep=sleeps.reduce((s,sl)=>{
-      if(sl.sleep_start&&sl.sleep_end){const mins=Math.round((new Date(sl.sleep_end)-new Date(sl.sleep_start))/60000);return s+mins;}return s;},0);
+    const totalSleep=sleeps.reduce((s,sl)=>{if(sl.sleep_start&&sl.sleep_end){return s+Math.round((new Date(sl.sleep_end)-new Date(sl.sleep_start))/60000);}return s;},0);
     const totalPumped=pumps.reduce((s,p)=>s+(p.amount_ml||0),0);
-    const cryCnt=cries.length;
-
     document.getElementById('summary-content').innerHTML=`
-      <div style="padding:12px 16px 4px;font-size:13px;color:var(--muted)">Today — ${new Date().toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'})}</div>
+      <div style="padding:12px 16px 4px;font-size:13px;color:var(--muted)">${new Date().toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'})}</div>
       <div class="summary-grid">
-        <div class="summary-card pink">
-          <div class="s-icon">🍼</div>
-          <div class="s-val">${totalMl}ml</div>
-          <div class="s-lbl">Bottle milk today</div>
-          <div class="s-sub">${feeds.filter(f=>f.feed_type==='bottle').length} bottle${feeds.filter(f=>f.feed_type==='bottle').length!==1?'s':''} · ${breastFeeds.length} breast</div>
-        </div>
-        <div class="summary-card blue">
-          <div class="s-icon">🚿</div>
-          <div class="s-val">${wetDiapers+soiledDiapers}</div>
-          <div class="s-lbl">Diapers today</div>
-          <div class="s-sub">💧 ${wetDiapers} wet · 💩 ${soiledDiapers} soiled</div>
-        </div>
-        <div class="summary-card green">
-          <div class="s-icon">😴</div>
-          <div class="s-val">${totalSleep>=60?Math.floor(totalSleep/60)+'h '+(totalSleep%60)+'m':totalSleep+'m'}</div>
-          <div class="s-lbl">Sleep today</div>
-          <div class="s-sub">${sleeps.length} session${sleeps.length!==1?'s':''}</div>
-        </div>
-        <div class="summary-card teal">
-          <div class="s-icon">🥛</div>
-          <div class="s-val">${totalPumped}ml</div>
-          <div class="s-lbl">Pumped today</div>
-          <div class="s-sub">${pumps.length} session${pumps.length!==1?'s':''}</div>
-        </div>
-        <div class="summary-card yellow">
-          <div class="s-icon">😢</div>
-          <div class="s-val">${cryCnt}</div>
-          <div class="s-lbl">Cry episodes</div>
-          <div class="s-sub">${cryCnt===0?'Happy baby! 🎉':'Hang in there 💪'}</div>
-        </div>
-        <div class="summary-card purple">
-          <div class="s-icon">⏰</div>
-          <div class="s-val">${lastFeed?fmtTime(lastFeed.logged_at):'—'}</div>
-          <div class="s-lbl">Last feed</div>
-          <div class="s-sub">${lastFeed?`${lastFeed.feed_type==='bottle'?(lastFeed.amount_ml+'ml bottle'):(lastFeed.duration_mins+'min breast')}`:' No feeds yet'}</div>
-        </div>
+        <div class="summary-card pink"><div class="s-icon">🍼</div><div class="s-val">${totalMl}ml</div><div class="s-lbl">Bottle milk</div><div class="s-sub">${feeds.filter(f=>f.feed_type==='bottle').length} bottles · ${breastFeeds.length} breast</div></div>
+        <div class="summary-card blue"><div class="s-icon">🚿</div><div class="s-val">${wetDiapers+soiledDiapers}</div><div class="s-lbl">Diapers</div><div class="s-sub">💧 ${wetDiapers} wet · 💩 ${soiledDiapers} soiled</div></div>
+        <div class="summary-card green"><div class="s-icon">😴</div><div class="s-val">${totalSleep>=60?Math.floor(totalSleep/60)+'h '+(totalSleep%60)+'m':totalSleep+'m'}</div><div class="s-lbl">Sleep</div><div class="s-sub">${sleeps.length} session${sleeps.length!==1?'s':''}</div></div>
+        <div class="summary-card teal"><div class="s-icon">🥛</div><div class="s-val">${totalPumped}ml</div><div class="s-lbl">Pumped</div><div class="s-sub">${pumps.length} session${pumps.length!==1?'s':''}</div></div>
+        <div class="summary-card yellow"><div class="s-icon">😢</div><div class="s-val">${cries.length}</div><div class="s-lbl">Cry episodes</div><div class="s-sub">${cries.length===0?'Happy baby! 🎉':'Hang in there 💪'}</div></div>
+        <div class="summary-card purple"><div class="s-icon">⏰</div><div class="s-val">${lastFeed?fmtTime(lastFeed.logged_at):'—'}</div><div class="s-lbl">Last feed</div><div class="s-sub">${lastFeed?`${lastFeed.feed_type==='bottle'?(lastFeed.amount_ml+'ml bottle'):(lastFeed.duration_mins+'min breast')}`:'No feeds yet'}</div></div>
       </div>
       <div style="padding:4px 16px 16px">
         <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;margin-top:8px">Recent activity</div>
-        ${feeds.slice(0,3).map(f=>`<div class="log-item"><div class="log-icon">${f.feed_type==='bottle'?'🍼':'🤱'}</div><div class="log-info"><div class="log-title">${f.feed_type==='bottle'?`Bottle — ${f.amount_ml}ml`:`Breast — ${f.duration_mins}min (${f.breast_side})`}</div>${f.notes?`<div class="log-detail">${esc(f.notes)}</div>`:''}</div><div class="log-time">${fmtTime(f.logged_at)}</div></div>`).join('')}
-        ${diapers.slice(0,2).map(d=>`<div class="log-item"><div class="log-icon">${d.diaper_type==='wet'?'💧':'💩'}</div><div class="log-info"><div class="log-title">${d.diaper_type==='wet'?'Wet diaper':'Soiled diaper'}</div></div><div class="log-time">${fmtTime(d.logged_at)}</div></div>`).join('')}
+        ${[...feeds.slice(0,2).map(f=>({icon:f.feed_type==='bottle'?'🍼':'🤱',title:f.feed_type==='bottle'?`Bottle — ${f.amount_ml}ml`:`Breast — ${f.duration_mins}min (${f.breast_side})`,note:f.notes,ts:f.logged_at})),...diapers.slice(0,2).map(d=>({icon:d.diaper_type==='wet'?'💧':'💩',title:d.diaper_type==='wet'?'Wet diaper':'Soiled diaper',note:'',ts:d.logged_at}))].sort((a,b)=>new Date(b.ts)-new Date(a.ts)).slice(0,4).map(e=>`<div class="log-item"><div class="log-icon">${e.icon}</div><div class="log-info"><div class="log-title">${esc(e.title)}</div>${e.note?`<div class="log-detail">${esc(e.note)}</div>`:''}</div><div class="log-time">${fmtTime(e.ts)}</div></div>`).join('')}
       </div>`;
   }catch(e){document.getElementById('summary-content').innerHTML=`<div class="loading" style="color:var(--red)">Error: ${e.message}</div>`;}
 }
@@ -480,33 +631,25 @@ async function loadToday(){
 // ── History ───────────────────────────────────────────────
 async function loadHistory(){
   try{
-    const since=new Date();since.setDate(since.getDate()-7);const s=since.toISOString();
+    const since=new Date();since.setDate(since.getDate()-7);
     const [feeds,diapers,sleeps,cries,pumps,meals]=await Promise.all([
-      sbFetch(`/rest/v1/baby_feeds?logged_at=gte.${s}&order=logged_at.desc&limit=30&select=*`),
-      sbFetch(`/rest/v1/baby_diapers?logged_at=gte.${s}&order=logged_at.desc&limit=30&select=*`),
-      sbFetch(`/rest/v1/baby_sleep?logged_at=gte.${s}&order=logged_at.desc&limit=20&select=*`),
-      sbFetch(`/rest/v1/baby_crying?logged_at=gte.${s}&order=logged_at.desc&limit=20&select=*`),
-      sbFetch(`/rest/v1/baby_pumping?logged_at=gte.${s}&order=logged_at.desc&limit=20&select=*`),
-      sbFetch(`/rest/v1/mama_meals?logged_at=gte.${s}&order=logged_at.desc&limit=20&select=*`)
+      sbFetch(`/rest/v1/baby_feeds?logged_at=gte.${since.toISOString()}&order=logged_at.desc&limit=30&select=*`),
+      sbFetch(`/rest/v1/baby_diapers?logged_at=gte.${since.toISOString()}&order=logged_at.desc&limit=30&select=*`),
+      sbFetch(`/rest/v1/baby_sleep?logged_at=gte.${since.toISOString()}&order=logged_at.desc&limit=20&select=*`),
+      sbFetch(`/rest/v1/baby_crying?logged_at=gte.${since.toISOString()}&order=logged_at.desc&limit=20&select=*`),
+      sbFetch(`/rest/v1/baby_pumping?logged_at=gte.${since.toISOString()}&order=logged_at.desc&limit=20&select=*`),
+      sbFetch(`/rest/v1/mama_meals?logged_at=gte.${since.toISOString()}&order=logged_at.desc&limit=20&select=*`)
     ]);
     const all=[
-      ...feeds.map(f=>({...f,_type:'feed',_ts:f.logged_at})),
-      ...diapers.map(d=>({...d,_type:'diaper',_ts:d.logged_at})),
-      ...sleeps.map(s=>({...s,_type:'sleep',_ts:s.logged_at})),
-      ...cries.map(c=>({...c,_type:'cry',_ts:c.logged_at})),
-      ...pumps.map(p=>({...p,_type:'pump',_ts:p.logged_at})),
-      ...meals.map(m=>({...m,_type:'meal',_ts:m.logged_at}))
-    ].sort((a,b)=>new Date(b._ts)-new Date(a._ts));
-
-    const renderEntry=e=>{
-      const icons={feed:e.feed_type==='bottle'?'🍼':'🤱',diaper:e.diaper_type==='wet'?'💧':'💩',sleep:'😴',cry:'😢',pump:'🥛',meal:'🍽️'};
-      const titles={feed:e.feed_type==='bottle'?`Bottle — ${e.amount_ml}ml`:`Breast — ${e.duration_mins}min (${e.breast_side})`,diaper:e.diaper_type==='wet'?'Wet diaper':'Soiled diaper',sleep:e.sleep_end?`Sleep — ${Math.round((new Date(e.sleep_end)-new Date(e.sleep_start))/60000)}min`:'Sleep started',cry:`Crying — ${e.duration_mins}min (${e.reason})`,pump:`Pumped — ${e.amount_ml}ml`,meal:`${e.meal_type} — ${e.description}`};
-      const details={feed:e.notes,diaper:'',sleep:e.notes,cry:e.notes,pump:e.notes,meal:e.notes};
-      return`<div class="log-item"><div class="log-icon">${icons[e._type]||'📝'}</div><div class="log-info"><div class="log-title">${esc(titles[e._type]||'')}</div>${details[e._type]?`<div class="log-detail">${esc(details[e._type])}</div>`:''}</div><div class="log-time">${fmtDateTime(e._ts)}</div></div>`;
-    };
-
+      ...feeds.map(f=>({icon:f.feed_type==='bottle'?'🍼':'🤱',title:f.feed_type==='bottle'?`Bottle — ${f.amount_ml}ml`:`Breast — ${f.duration_mins}min (${f.breast_side})`,detail:f.notes,ts:f.logged_at})),
+      ...diapers.map(d=>({icon:d.diaper_type==='wet'?'💧':'💩',title:d.diaper_type==='wet'?'Wet diaper':'Soiled diaper',detail:'',ts:d.logged_at})),
+      ...sleeps.map(s=>({icon:'😴',title:s.sleep_end?`Sleep — ${Math.floor(Math.round((new Date(s.sleep_end)-new Date(s.sleep_start))/60000)/60)}h ${Math.round((new Date(s.sleep_end)-new Date(s.sleep_start))/60000)%60}m`:'Sleep started',detail:s.notes,ts:s.logged_at})),
+      ...cries.map(c=>({icon:'😢',title:`Crying — ${c.duration_mins}min (${c.reason})`,detail:c.notes,ts:c.logged_at})),
+      ...pumps.map(p=>({icon:'🥛',title:`Pumped — ${p.amount_ml}ml`,detail:p.notes,ts:p.logged_at})),
+      ...meals.map(m=>({icon:'🍽️',title:`${m.meal_type} — ${m.description}`,detail:m.notes,ts:m.logged_at}))
+    ].sort((a,b)=>new Date(b.ts)-new Date(a.ts));
     document.getElementById('history-content').innerHTML=all.length
-      ?`<div class="history-section"><h3>Last 7 days</h3>${all.map(renderEntry).join('')}</div>`
+      ?`<div class="history-section"><h3>Last 7 days</h3>${all.map(e=>`<div class="log-item"><div class="log-icon">${e.icon}</div><div class="log-info"><div class="log-title">${esc(e.title)}</div>${e.detail?`<div class="log-detail">${esc(e.detail)}</div>`:''}</div><div class="log-time">${fmtDateTime(e.ts)}</div></div>`).join('')}</div>`
       :`<div class="empty-log">No activity in the last 7 days</div>`;
   }catch(e){document.getElementById('history-content').innerHTML=`<div class="loading" style="color:var(--red)">Error: ${e.message}</div>`;}
 }
@@ -521,28 +664,17 @@ async function loadTrends(){
       sbFetch(`/rest/v1/baby_sleep?logged_at=gte.${since.toISOString()}&select=*`)
     ]);
     const days=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(d);}
-    const dayLabel=d=>d.toLocaleDateString([],{weekday:'short'});
-    const dayKey=d=>d.toISOString().slice(0,10);
-
-    const mlPerDay=days.map(d=>({lbl:dayLabel(d),val:feeds.filter(f=>f.feed_type==='bottle'&&f.logged_at.startsWith(dayKey(d))).reduce((s,f)=>s+(f.amount_ml||0),0)}));
-    const diapersPerDay=days.map(d=>({lbl:dayLabel(d),val:diapers.filter(dia=>dia.logged_at.startsWith(dayKey(d))).length}));
-    const sleepPerDay=days.map(d=>({lbl:dayLabel(d),val:Math.round(sleeps.filter(s=>s.sleep_start&&s.sleep_end&&s.logged_at.startsWith(dayKey(d))).reduce((s,sl)=>s+(new Date(sl.sleep_end)-new Date(sl.sleep_start))/60000,0))}));
-
-    const barChart=(data,color,unit)=>{
-      const max=Math.max(...data.map(d=>d.val),1);
-      return`<div class="bar-chart">${data.map(d=>`<div class="bar-col"><div class="bar-val">${d.val>0?d.val+unit:''}</div><div class="bar" style="height:${Math.max(4,d.val/max*70)}px;background:${color}"></div><div class="bar-lbl">${d.lbl}</div></div>`).join('')}</div>`;
-    };
-
-    document.getElementById('trends-content').innerHTML=`
-      <div class="chart-wrap">
-        <div class="chart-card"><h3>🍼 Bottle milk per day (ml)</h3>${barChart(mlPerDay,'var(--pink)','')}</div>
-        <div class="chart-card"><h3>🚿 Diapers per day</h3>${barChart(diapersPerDay,'var(--blue)','')}</div>
-        <div class="chart-card"><h3>😴 Sleep per day (minutes)</h3>${barChart(sleepPerDay,'var(--green)','m')}</div>
-      </div>`;
+    const dk=d=>d.toISOString().slice(0,10);
+    const dl=d=>d.toLocaleDateString([],{weekday:'short'});
+    const mlPerDay=days.map(d=>({lbl:dl(d),val:feeds.filter(f=>f.feed_type==='bottle'&&f.logged_at.startsWith(dk(d))).reduce((s,f)=>s+(f.amount_ml||0),0)}));
+    const diapersPerDay=days.map(d=>({lbl:dl(d),val:diapers.filter(dia=>dia.logged_at.startsWith(dk(d))).length}));
+    const sleepPerDay=days.map(d=>({lbl:dl(d),val:Math.round(sleeps.filter(s=>s.sleep_start&&s.sleep_end&&s.logged_at.startsWith(dk(d))).reduce((s,sl)=>s+(new Date(sl.sleep_end)-new Date(sl.sleep_start))/60000,0))}));
+    const bar=(data,color,unit)=>{const max=Math.max(...data.map(d=>d.val),1);return`<div class="bar-chart">${data.map(d=>`<div class="bar-col"><div class="bar-val">${d.val>0?d.val+unit:''}</div><div class="bar" style="height:${Math.max(4,d.val/max*70)}px;background:${color}"></div><div class="bar-lbl">${d.lbl}</div></div>`).join('')}</div>`;};
+    document.getElementById('trends-content').innerHTML=`<div class="chart-wrap"><div class="chart-card"><h3>🍼 Bottle milk per day (ml)</h3>${bar(mlPerDay,'var(--pink)','')}</div><div class="chart-card"><h3>🚿 Diapers per day</h3>${bar(diapersPerDay,'var(--blue)','')}</div><div class="chart-card"><h3>😴 Sleep per day (mins)</h3>${bar(sleepPerDay,'var(--green)','m')}</div></div>`;
   }catch(e){document.getElementById('trends-content').innerHTML=`<div class="loading" style="color:var(--red)">Error: ${e.message}</div>`;}
 }
 
-// ── Log Functions ─────────────────────────────────────────
+// ── Log functions ─────────────────────────────────────────
 async function logBottleFeed(){
   const ml=parseInt(document.getElementById('feed-ml').value);
   if(!ml||ml<1){toast('Enter amount in ml');return;}
@@ -551,33 +683,19 @@ async function logBottleFeed(){
   try{await sbFetch('/rest/v1/baby_feeds',{method:'POST',body:JSON.stringify({feed_type:'bottle',amount_ml:ml,logged_at:new Date(time).toISOString(),notes:notes||null})});closeModal('feed-modal');toast(`🍼 ${ml}ml logged!`);if(activeTab==='today')loadToday();}
   catch(e){toast('Error: '+e.message);}
 }
-
 async function logBreastFeed(){
   const mins=parseInt(document.getElementById('breast-mins').value);
   if(!mins||mins<1){toast('Enter duration in minutes');return;}
   const side=document.getElementById('breast-side').value;
   const time=document.getElementById('breast-time').value||nowLocal();
   const notes=document.getElementById('breast-notes').value.trim();
-  try{await sbFetch('/rest/v1/baby_feeds',{method:'POST',body:JSON.stringify({feed_type:'breast',duration_mins:mins,breast_side:side,logged_at:new Date(time).toISOString(),notes:notes||null})});closeModal('breast-modal');toast(`🤱 ${mins}min breast feed logged!`);if(activeTab==='today')loadToday();}
+  try{await sbFetch('/rest/v1/baby_feeds',{method:'POST',body:JSON.stringify({feed_type:'breast',duration_mins:mins,breast_side:side,logged_at:new Date(time).toISOString(),notes:notes||null})});closeModal('breast-modal');toast(`🤱 ${mins}min logged!`);if(activeTab==='today')loadToday();}
   catch(e){toast('Error: '+e.message);}
 }
-
 async function logDiaper(type){
   try{await sbFetch('/rest/v1/baby_diapers',{method:'POST',body:JSON.stringify({diaper_type:type,logged_at:new Date().toISOString()})});toast(type==='wet'?'💧 Wet diaper logged!':'💩 Soiled diaper logged!');if(activeTab==='today')loadToday();}
   catch(e){toast('Error: '+e.message);}
 }
-
-async function logSleep(){
-  const start=document.getElementById('sleep-start').value;
-  const end=document.getElementById('sleep-end').value;
-  if(!start){toast('Enter sleep start time');return;}
-  const notes=document.getElementById('sleep-notes').value.trim();
-  let duration=null;
-  if(end)duration=Math.round((new Date(end)-new Date(start))/60000);
-  try{await sbFetch('/rest/v1/baby_sleep',{method:'POST',body:JSON.stringify({sleep_start:new Date(start).toISOString(),sleep_end:end?new Date(end).toISOString():null,duration_mins:duration,notes:notes||null,logged_at:new Date(start).toISOString()})});closeModal('sleep-modal');toast('😴 Sleep logged!');if(activeTab==='today')loadToday();}
-  catch(e){toast('Error: '+e.message);}
-}
-
 async function logCrying(){
   const mins=parseInt(document.getElementById('cry-mins').value)||0;
   const reason=document.getElementById('cry-reason').value;
@@ -586,17 +704,15 @@ async function logCrying(){
   try{await sbFetch('/rest/v1/baby_crying',{method:'POST',body:JSON.stringify({duration_mins:mins||null,reason,logged_at:new Date(time).toISOString(),notes:notes||null})});closeModal('cry-modal');toast('😢 Episode logged');if(activeTab==='today')loadToday();}
   catch(e){toast('Error: '+e.message);}
 }
-
 async function logPump(){
   const ml=parseInt(document.getElementById('pump-ml').value);
   if(!ml||ml<1){toast('Enter amount in ml');return;}
   const mins=parseInt(document.getElementById('pump-mins').value)||null;
   const time=document.getElementById('pump-time').value||nowLocal();
   const notes=document.getElementById('pump-notes').value.trim();
-  try{await sbFetch('/rest/v1/baby_pumping',{method:'POST',body:JSON.stringify({amount_ml:ml,duration_mins:mins,logged_at:new Date(time).toISOString(),notes:notes||null})});closeModal('pump-modal');toast(`🥛 ${ml}ml pumped logged!`);if(activeTab==='today')loadToday();}
+  try{await sbFetch('/rest/v1/baby_pumping',{method:'POST',body:JSON.stringify({amount_ml:ml,duration_mins:mins,logged_at:new Date(time).toISOString(),notes:notes||null})});closeModal('pump-modal');toast(`🥛 ${ml}ml logged!`);if(activeTab==='today')loadToday();}
   catch(e){toast('Error: '+e.message);}
 }
-
 async function logMeal(){
   const desc=document.getElementById('meal-desc').value.trim();
   if(!desc){toast('Enter what she ate');return;}
@@ -608,18 +724,10 @@ async function logMeal(){
 }
 
 // ── Modal helpers ─────────────────────────────────────────
-function openModal(id){
-  const timeFields={
-    'feed-modal':'feed-time','breast-modal':'breast-time',
-    'sleep-modal':'sleep-start','cry-modal':'cry-time',
-    'pump-modal':'pump-time','meal-modal':'meal-time'
-  };
-  if(timeFields[id]){const el=document.getElementById(timeFields[id]);if(el)el.value=nowLocal();}
-  document.getElementById(id).style.display='flex';
-}
+const timeFields={'feed-modal':'feed-time','breast-modal':'breast-time','cry-modal':'cry-time','pump-modal':'pump-time','meal-modal':'meal-time','wake-modal':'wake-time'};
+function openModal(id){if(timeFields[id]){const el=document.getElementById(timeFields[id]);if(el)el.value=nowLocal();}document.getElementById(id).style.display='flex';}
 function closeModal(id){document.getElementById(id).style.display='none';}
 function closeModalClick(e){if(e.target===e.currentTarget)closeModal(e.currentTarget.id);}
-
 function selectSide(val,btn){document.getElementById('breast-side').value=val;document.querySelectorAll('[data-side]').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');}
 function selectReason(val,btn){document.getElementById('cry-reason').value=val;document.querySelectorAll('[data-r]').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');}
 function selectMealType(val,btn){document.getElementById('meal-type').value=val;document.querySelectorAll('[data-m]').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');}
