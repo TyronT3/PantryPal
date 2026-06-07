@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>PantryPal</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --card: #22263a;
+    --accent: #6c63ff;
+    --accent2: #ff6584;
+    --green: #2ecc71;
+    --yellow: #f39c12;
+    --red: #e74c3c;
+    --text: #e8eaf6;
+    --muted: #8892b0;
+    --border: #2e3250;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+  /* CONFIG BANNER */
+  #config-banner { background: #2d1f00; border-bottom: 1px solid #f39c12; padding: 12px 16px; font-size: 13px; color: #f39c12; display: none; }
+  #config-banner a { color: #ffd080; }
+
+  /* AUTH */
+  #auth-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+  .logo { font-size: 48px; margin-bottom: 8px; }
+  .app-title { font-size: 28px; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
+  .app-sub { color: var(--muted); font-size: 14px; margin-bottom: 32px; }
+  .auth-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; width: 100%; max-width: 360px; }
+  .auth-box h2 { font-size: 18px; margin-bottom: 20px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .5px; }
+  .field input { width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 11px 14px; color: var(--text); font-size: 15px; outline: none; }
+  .field input:focus { border-color: var(--accent); }
+  .btn { width: 100%; padding: 13px; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity .2s; }
+  .btn:active { opacity: .8; }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: #fff; }
+  .btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); margin-top: 10px; }
+  .auth-error { color: var(--red); font-size: 13px; margin-top: 10px; text-align: center; min-height: 18px; }
+
+  /* SETUP */
+  #setup-screen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+  .setup-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; width: 100%; max-width: 420px; }
+  .setup-box h2 { font-size: 18px; margin-bottom: 8px; }
+  .setup-box p { color: var(--muted); font-size: 13px; margin-bottom: 20px; line-height: 1.5; }
+  .setup-box code { background: var(--card); padding: 2px 6px; border-radius: 4px; font-size: 12px; color: #a5d6a7; }
+  .sql-block { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 11px; color: #a5d6a7; font-family: monospace; white-space: pre-wrap; margin-bottom: 16px; overflow-x: auto; }
+
+  /* APP */
+  #app-screen { display: none; flex-direction: column; min-height: 100vh; max-width: 600px; margin: 0 auto; }
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .header-logo { font-size: 22px; }
+  .header-title { font-size: 18px; font-weight: 700; }
+  .header-actions { display: flex; gap: 8px; }
+  .icon-btn { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; color: var(--text); cursor: pointer; font-size: 16px; }
+
+  /* SEARCH/FILTER */
+  .toolbar { padding: 12px 16px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; gap: 8px; flex-wrap: wrap; }
+  .search-wrap { flex: 1; min-width: 150px; position: relative; }
+  .search-wrap input { width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 9px 14px 9px 36px; color: var(--text); font-size: 14px; outline: none; }
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; }
+  .filters { display: flex; gap: 6px; }
+  .filter-btn { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 6px 12px; font-size: 12px; color: var(--muted); cursor: pointer; white-space: nowrap; }
+  .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* STATS ROW */
+  .stats { display: flex; gap: 8px; padding: 12px 16px; overflow-x: auto; }
+  .stat-chip { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 8px 14px; text-align: center; flex-shrink: 0; }
+  .stat-chip .num { font-size: 20px; font-weight: 700; }
+  .stat-chip .lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .stat-chip.green .num { color: var(--green); }
+  .stat-chip.yellow .num { color: var(--yellow); }
+  .stat-chip.red .num { color: var(--red); }
+
+  /* ITEM GRID */
+  .items-grid { padding: 12px 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+  .item-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; cursor: pointer; transition: transform .15s, border-color .15s; position: relative; }
+  .item-card:active { transform: scale(.97); }
+  .item-card.stocked { border-left: 3px solid var(--green); }
+  .item-card.open { border-left: 3px solid var(--yellow); }
+  .item-card.empty { border-left: 3px solid var(--red); opacity: .7; }
+  .item-emoji { font-size: 28px; margin-bottom: 6px; }
+  .item-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; line-height: 1.3; }
+  .item-brand { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+  .item-qty { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .status-badge { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .3px; }
+  .badge-stocked { background: #1a3d2b; color: var(--green); }
+  .badge-open { background: #3d2e0a; color: var(--yellow); }
+  .badge-empty { background: #3d0e0e; color: var(--red); }
+  .quick-actions { display: flex; gap: 5px; margin-top: 10px; }
+  .qa-btn { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 5px 2px; font-size: 11px; color: var(--text); cursor: pointer; text-align: center; }
+  .qa-btn:active { background: var(--accent); border-color: var(--accent); }
+  .empty-state { grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-state .big { font-size: 48px; margin-bottom: 10px; }
+
+  /* FAB */
+  .fab { position: fixed; bottom: 24px; right: 24px; width: 58px; height: 58px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #8b5cf6); border: none; color: #fff; font-size: 26px; cursor: pointer; box-shadow: 0 4px 20px rgba(108,99,255,.5); display: flex; align-items: center; justify-content: center; z-index: 50; }
+
+  /* MODAL */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 100; display: flex; align-items: flex-end; justify-content: center; }
+  .modal { background: var(--surface); border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; max-height: 92vh; overflow-y: auto; padding: 20px 20px 40px; }
+  .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 16px; }
+  .modal h2 { font-size: 18px; margin-bottom: 16px; }
+  .modal-close { float: right; background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; margin-top: -4px; }
+  .modal .btn { margin-top: 8px; }
+  .status-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
+  .status-opt { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 13px; cursor: pointer; text-align: center; }
+  .status-opt.selected-stocked { border-color: var(--green); background: #1a3d2b; color: var(--green); }
+  .status-opt.selected-open { border-color: var(--yellow); background: #3d2e0a; color: var(--yellow); }
+  .status-opt.selected-empty { border-color: var(--red); background: #3d0e0e; color: var(--red); }
+  .history-list { margin-top: 16px; }
+  .history-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .history-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+  .history-time { color: var(--muted); font-size: 11px; }
+  .section-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; margin-top: 16px; }
+
+  /* SCANNER */
+  #scanner-container { position: relative; width: 100%; border-radius: 10px; overflow: hidden; background: #000; }
+  #scanner-container video { width: 100%; display: block; }
+  #scanner-container canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+  .scan-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+  .scan-box { width: 220px; height: 120px; border: 2px solid var(--accent); border-radius: 10px; box-shadow: 0 0 0 1000px rgba(0,0,0,.4); }
+  .scan-status { text-align: center; padding: 8px; font-size: 13px; color: var(--muted); }
+
+  /* TOAST */
+  #toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 10px 20px; font-size: 13px; opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 200; white-space: nowrap; }
+  #toast.show { opacity: 1; }
+
+  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .6s linear infinite; vertical-align: middle; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-screen { display: flex; align-items: center; justify-content: center; min-height: 200px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- CONFIG BANNER -->
+<div id="config-banner">
+  ⚠️ Supabase not configured. <a href="#" onclick="showSetup()">Click here to set up</a> — takes 5 minutes and is completely free.
+</div>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="logo">🥫</div>
+  <div class="app-title">PantryPal</div>
+  <div class="app-sub">Your household pantry tracker</div>
+  <div class="auth-box">
+    <h2>Welcome back</h2>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary" onclick="signIn()">Sign In</button>
+    <button class="btn btn-secondary" onclick="signUp()">Create Account</button>
+    <div class="auth-error" id="auth-error"></div>
+  </div>
+</div>
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen">
+  <div class="setup-box">
+    <h2>🔧 Quick Setup (5 min, free)</h2>
+    <p>PantryPal uses <strong>Supabase</strong> — a free database. Follow these steps:</p>
+
+    <div class="section-label">Step 1 — Create free account</div>
+    <p>Go to <a href="https://supabase.com" target="_blank" style="color:var(--accent)">supabase.com</a> → New project → pick a name + password.</p>
+
+    <div class="section-label">Step 2 — Run this SQL</div>
+    <p>In Supabase → SQL Editor → paste and run:</p>
+    <div class="sql-block">create table items (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  brand text,
+  category text,
+  barcode text,
+  emoji text default '🥫',
+  quantity int default 1,
+  status text default 'stocked',
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+create table history (
+  id uuid primary key default gen_random_uuid(),
+  item_id uuid references items(id) on delete cascade,
+  action text,
+  note text,
+  created_at timestamptz default now()
+);</div>
+
+    <div class="section-label">Step 3 — Paste your keys below</div>
+    <div class="field">
+      <label>Supabase URL</label>
+      <input type="text" id="setup-url" placeholder="https://xxxx.supabase.co" style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);width:100%;font-size:14px;outline:none;">
+    </div>
+    <div class="field">
+      <label>Anon / Public Key</label>
+      <input type="text" id="setup-key" placeholder="eyJ..." style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);width:100%;font-size:14px;outline:none;">
+    </div>
+    <button class="btn btn-primary" onclick="saveConfig()">Save & Continue</button>
+    <div class="auth-error" id="setup-error"></div>
+  </div>
+</div>
+
+<!-- APP SCREEN -->
+<div id="app-screen">
+  <header>
+    <div class="header-left">
+      <span class="header-logo">🥫</span>
+      <span class="header-title">PantryPal</span>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="openScanModal()" title="Scan barcode">📷</button>
+      <button class="icon-btn" onclick="signOut()" title="Sign out">🚪</button>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Search items…" oninput="renderItems()">
+    </div>
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" data-filter="stocked" onclick="setFilter('stocked',this)">🟢</button>
+      <button class="filter-btn" data-filter="open" onclick="setFilter('open',this)">🟡</button>
+      <button class="filter-btn" data-filter="empty" onclick="setFilter('empty',this)">🔴</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-chip green"><div class="num" id="stat-stocked">0</div><div class="lbl">Stocked</div></div>
+    <div class="stat-chip yellow"><div class="num" id="stat-open">0</div><div class="lbl">Open</div></div>
+    <div class="stat-chip red"><div class="num" id="stat-empty">0</div><div class="lbl">Empty</div></div>
+    <div class="stat-chip"><div class="num" id="stat-total">0</div><div class="lbl">Total</div></div>
+  </div>
+
+  <div class="items-grid" id="items-grid">
+    <div class="loading-screen"><span class="spinner"></span> Loading pantry…</div>
+  </div>
+
+  <button class="fab" onclick="openAddModal()">+</button>
+</div>
+
+<!-- MODAL: Add / Edit Item -->
+<div class="modal-overlay" id="item-modal" style="display:none" onclick="closeItemModal(event)">
+  <div class="modal" id="item-modal-inner">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('item-modal')">✕</button>
+    <h2 id="item-modal-title">Add Item</h2>
+
+    <div class="field">
+      <label>Name *</label>
+      <input type="text" id="item-name" placeholder="e.g. Oat Milk">
+    </div>
+    <div class="field">
+      <label>Brand</label>
+      <input type="text" id="item-brand" placeholder="e.g. Oatly">
+    </div>
+    <div class="field">
+      <label>Category</label>
+      <input type="text" id="item-category" placeholder="e.g. Dairy-free, Snacks…">
+    </div>
+    <div class="field">
+      <label>Quantity</label>
+      <input type="number" id="item-qty" value="1" min="0">
+    </div>
+    <div class="section-label">Status</div>
+    <div class="status-toggle">
+      <button class="status-opt selected-stocked" data-s="stocked" onclick="selectStatus('stocked')">🟢 Stocked</button>
+      <button class="status-opt" data-s="open" onclick="selectStatus('open')">🟡 Open</button>
+      <button class="status-opt" data-s="empty" onclick="selectStatus('empty')">🔴 Empty</button>
+    </div>
+    <input type="hidden" id="item-status" value="stocked">
+    <input type="hidden" id="item-id" value="">
+    <input type="hidden" id="item-barcode" value="">
+    <button class="btn btn-primary" id="item-save-btn" onclick="saveItem()">Add to Pantry</button>
+    <button class="btn btn-secondary" id="item-delete-btn" style="display:none;color:var(--red)" onclick="deleteItem()">🗑 Delete Item</button>
+  </div>
+</div>
+
+<!-- MODAL: Item Detail / History -->
+<div class="modal-overlay" id="detail-modal" style="display:none" onclick="closeItemModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('detail-modal')">✕</button>
+    <h2 id="detail-name">Item</h2>
+    <div id="detail-content"></div>
+  </div>
+</div>
+
+<!-- MODAL: Scanner -->
+<div class="modal-overlay" id="scan-modal" style="display:none" onclick="closeItemModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="stopScanner();closeModal('scan-modal')">✕</button>
+    <h2>📷 Scan Barcode</h2>
+    <div id="scanner-container">
+      <div id="interactive" class="viewport"></div>
+    </div>
+    <div class="scan-status" id="scan-status">Point camera at a barcode…</div>
+    <button class="btn btn-secondary" onclick="stopScanner();closeModal('scan-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────
+let SUPABASE_URL = localStorage.getItem('pp_url') || '';
+let SUPABASE_KEY = localStorage.getItem('pp_key') || '';
+
+const CATEGORY_EMOJI = {
+  dairy:'🥛', 'dairy-free':'🌾', milk:'🥛', cheese:'🧀', egg:'🥚',
+  bread:'🍞', pasta:'🍝', rice:'🍚', grain:'🌾', cereal:'🥣',
+  fruit:'🍎', vegetable:'🥦', veg:'🥦', produce:'🥬',
+  meat:'🥩', chicken:'🍗', fish:'🐟', seafood:'🦐',
+  snack:'🍪', chip:'🍟', chocolate:'🍫', candy:'🍬', sweet:'🍬',
+  drink:'🥤', juice:'🍊', coffee:'☕', tea:'🍵', water:'💧', soda:'🥤',
+  sauce:'🍶', condiment:'🧴', oil:'🫙', spice:'🧂', herb:'🌿',
+  soup:'🍲', can:'🥫', tin:'🥫', bean:'🫘', lentil:'🫘',
+  frozen:'🧊', ice:'🧊',
+  cleaning:'🧹', soap:'🧼', hygiene:'🪥',
+  default:'🥫'
+};
+
+function guessEmoji(name='', cat='') {
+  const s = (name+' '+cat).toLowerCase();
+  for(const [k,v] of Object.entries(CATEGORY_EMOJI)) if(s.includes(k)) return v;
+  return '🥫';
+}
+
+// ─── SUPABASE HELPERS ─────────────────────────────────────
+async function sbFetch(path, opts={}) {
+  const r = await fetch(SUPABASE_URL+path, {
+    ...opts,
+    headers: {
+      'Content-Type':'application/json',
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer '+SUPABASE_KEY,
+      ...(opts.headers||{})
+    }
+  });
+  const data = await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(data.message||data.error||r.status);
+  return data;
+}
+
+// ─── INIT ─────────────────────────────────────────────────
+function show(id) { document.getElementById(id).style.display='flex'; }
+function hide(id) { document.getElementById(id).style.display='none'; }
+
+window.onload = () => {
+  if(!SUPABASE_URL || !SUPABASE_KEY) {
+    document.getElementById('config-banner').style.display='block';
+    show('setup-screen');
+  } else {
+    show('auth-screen');
+  }
+};
+
+function showSetup() { hide('auth-screen'); show('setup-screen'); }
+
+function saveConfig() {
+  const url = document.getElementById('setup-url').value.trim().replace(/\/$/,'');
+  const key = document.getElementById('setup-key').value.trim();
+  if(!url||!key) { document.getElementById('setup-error').textContent='Please fill both fields.'; return; }
+  SUPABASE_URL = url; SUPABASE_KEY = key;
+  localStorage.setItem('pp_url', url); localStorage.setItem('pp_key', key);
+  document.getElementById('config-banner').style.display='none';
+  hide('setup-screen'); show('auth-screen');
+}
+
+// ─── AUTH ─────────────────────────────────────────────────
+async function signIn() {
+  const email=document.getElementById('auth-email').value.trim();
+  const pass=document.getElementById('auth-password').value;
+  document.getElementById('auth-error').textContent='';
+  try {
+    await sbFetch('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email,password:pass})});
+    enterApp();
+  } catch(e){ document.getElementById('auth-error').textContent=e.message; }
+}
+
+async function signUp() {
+  const email=document.getElementById('auth-email').value.trim();
+  const pass=document.getElementById('auth-password').value;
+  document.getElementById('auth-error').textContent='';
+  if(pass.length<6){document.getElementById('auth-error').textContent='Password must be 6+ chars.';return;}
+  try {
+    await sbFetch('/auth/v1/signup',{method:'POST',body:JSON.stringify({email,password:pass})});
+    document.getElementById('auth-error').style.color='var(--green)';
+    document.getElementById('auth-error').textContent='Account created! Please sign in.';
+  } catch(e){ document.getElementById('auth-error').textContent=e.message; }
+}
+
+function signOut(){ hide('app-screen'); show('auth-screen'); items=[]; }
+function enterApp(){ hide('auth-screen'); show('app-screen'); loadItems(); }
+
+// ─── DATA ─────────────────────────────────────────────────
+let items=[], currentFilter='all';
+
+async function loadItems() {
+  try {
+    const data = await sbFetch('/rest/v1/items?order=name.asc&select=*');
+    items = data;
+    renderItems();
+  } catch(e){ toast('Error loading items: '+e.message); }
+}
+
+function renderItems() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  let filtered = items.filter(i=>{
+    const match = !q || i.name.toLowerCase().includes(q) || (i.brand||'').toLowerCase().includes(q) || (i.category||'').toLowerCase().includes(q);
+    const status = currentFilter==='all' || i.status===currentFilter;
+    return match && status;
+  });
+
+  const stocked = items.filter(i=>i.status==='stocked').length;
+  const open = items.filter(i=>i.status==='open').length;
+  const empty = items.filter(i=>i.status==='empty').length;
+  document.getElementById('stat-stocked').textContent=stocked;
+  document.getElementById('stat-open').textContent=open;
+  document.getElementById('stat-empty').textContent=empty;
+  document.getElementById('stat-total').textContent=items.length;
+
+  const grid = document.getElementById('items-grid');
+  if(!filtered.length){
+    grid.innerHTML=`<div class="empty-state"><div class="big">🥫</div><div>No items found</div><div style="font-size:12px;margin-top:6px">Tap + to add your first item</div></div>`;
+    return;
+  }
+  grid.innerHTML = filtered.map(item=>`
+    <div class="item-card ${item.status}" onclick="openDetailModal('${item.id}')">
+      <div class="item-emoji">${item.emoji||'🥫'}</div>
+      <div class="item-name">${esc(item.name)}</div>
+      <div class="item-brand">${esc(item.brand||'')}</div>
+      <div class="item-qty">Qty: ${item.quantity??1}</div>
+      <span class="status-badge badge-${item.status}">${item.status}</span>
+      <div class="quick-actions" onclick="event.stopPropagation()">
+        <button class="qa-btn" onclick="quickAction('${item.id}','add')">+1 📦</button>
+        <button class="qa-btn" onclick="quickAction('${item.id}','open')">Open</button>
+        <button class="qa-btn" onclick="quickAction('${item.id}','empty')">Empty</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function setFilter(f,btn){
+  currentFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderItems();
+}
+
+async function quickAction(id, action) {
+  const item = items.find(i=>i.id===id);
+  if(!item) return;
+  let update={updated_at:new Date().toISOString()};
+  let histNote='';
+  if(action==='add'){ update.quantity=(item.quantity||1)+1; update.status='stocked'; histNote='Added 1 (bought more)'; }
+  if(action==='open'){ update.status='open'; histNote='Marked as open'; }
+  if(action==='empty'){ update.status='empty'; update.quantity=0; histNote='Marked as empty'; }
+  try {
+    await sbFetch(`/rest/v1/items?id=eq.${id}`,{method:'PATCH',headers:{'Prefer':'return=representation'},body:JSON.stringify(update)});
+    await sbFetch('/rest/v1/history',{method:'POST',body:JSON.stringify({item_id:id,action:histNote})});
+    Object.assign(item,update);
+    renderItems();
+    toast(histNote);
+  } catch(e){ toast('Error: '+e.message); }
+}
+
+// ─── ADD / EDIT MODAL ─────────────────────────────────────
+let editingId=null;
+
+function openAddModal(prefill={}) {
+  editingId=null;
+  document.getElementById('item-modal-title').textContent='Add Item';
+  document.getElementById('item-name').value=prefill.name||'';
+  document.getElementById('item-brand').value=prefill.brand||'';
+  document.getElementById('item-category').value=prefill.category||'';
+  document.getElementById('item-qty').value=1;
+  document.getElementById('item-barcode').value=prefill.barcode||'';
+  selectStatus('stocked');
+  document.getElementById('item-save-btn').textContent='Add to Pantry';
+  document.getElementById('item-delete-btn').style.display='none';
+  show('item-modal');
+}
+
+function openEditModal(id) {
+  const item=items.find(i=>i.id===id); if(!item) return;
+  editingId=id;
+  document.getElementById('item-modal-title').textContent='Edit Item';
+  document.getElementById('item-name').value=item.name;
+  document.getElementById('item-brand').value=item.brand||'';
+  document.getElementById('item-category').value=item.category||'';
+  document.getElementById('item-qty').value=item.quantity??1;
+  document.getElementById('item-barcode').value=item.barcode||'';
+  selectStatus(item.status||'stocked');
+  document.getElementById('item-save-btn').textContent='Save Changes';
+  document.getElementById('item-delete-btn').style.display='block';
+  closeModal('detail-modal');
+  show('item-modal');
+}
+
+function selectStatus(s) {
+  document.getElementById('item-status').value=s;
+  document.querySelectorAll('.status-opt').forEach(b=>{
+    b.className='status-opt';
+    if(b.dataset.s===s) b.className=`status-opt selected-${s}`;
+  });
+}
+
+async function saveItem() {
+  const name=document.getElementById('item-name').value.trim();
+  if(!name){toast('Name is required');return;}
+  const brand=document.getElementById('item-brand').value.trim();
+  const cat=document.getElementById('item-category').value.trim();
+  const status=document.getElementById('item-status').value;
+  const qty=parseInt(document.getElementById('item-qty').value)||1;
+  const barcode=document.getElementById('item-barcode').value;
+  const emoji=guessEmoji(name,cat);
+
+  const payload={name,brand,category:cat,status,quantity:qty,barcode,emoji,updated_at:new Date().toISOString()};
+
+  try {
+    if(editingId) {
+      await sbFetch(`/rest/v1/items?id=eq.${editingId}`,{method:'PATCH',headers:{'Prefer':'return=representation'},body:JSON.stringify(payload)});
+      await sbFetch('/rest/v1/history',{method:'POST',body:JSON.stringify({item_id:editingId,action:'Item edited'})});
+      toast('Item updated ✓');
+    } else {
+      const res=await sbFetch('/rest/v1/items',{method:'POST',headers:{'Prefer':'return=representation'},body:JSON.stringify(payload)});
+      const newItem=Array.isArray(res)?res[0]:res;
+      await sbFetch('/rest/v1/history',{method:'POST',body:JSON.stringify({item_id:newItem.id,action:'Item added'})});
+      toast('Item added ✓');
+    }
+    closeModal('item-modal');
+    await loadItems();
+  } catch(e){ toast('Error: '+e.message); }
+}
+
+async function deleteItem() {
+  if(!editingId||!confirm('Delete this item and all its history?')) return;
+  try {
+    await sbFetch(`/rest/v1/items?id=eq.${editingId}`,{method:'DELETE'});
+    items=items.filter(i=>i.id!==editingId);
+    closeModal('item-modal');
+    renderItems();
+    toast('Item deleted');
+  } catch(e){ toast('Error: '+e.message); }
+}
+
+// ─── DETAIL MODAL ─────────────────────────────────────────
+async function openDetailModal(id) {
+  const item=items.find(i=>i.id===id); if(!item) return;
+  document.getElementById('detail-name').textContent=`${item.emoji||'🥫'} ${item.name}`;
+  document.getElementById('detail-content').innerHTML=`<div class="loading-screen"><span class="spinner"></span></div>`;
+  show('detail-modal');
+
+  try {
+    const hist=await sbFetch(`/rest/v1/history?item_id=eq.${id}&order=created_at.desc&limit=30`);
+    const dotColor={stocked:'var(--green)',open:'var(--yellow)',empty:'var(--red)'};
+    const actionColor=a=>{
+      if(a.includes('bought')||a.includes('Added')) return 'var(--green)';
+      if(a.includes('open')) return 'var(--yellow)';
+      if(a.includes('empty')) return 'var(--red)';
+      return 'var(--muted)';
+    };
+    document.getElementById('detail-content').innerHTML=`
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+        <span class="status-badge badge-${item.status}">${item.status}</span>
+        <span style="font-size:13px;color:var(--muted)">Qty: ${item.quantity??1}</span>
+        ${item.brand?`<span style="font-size:13px;color:var(--muted)">${esc(item.brand)}</span>`:''}
+        ${item.category?`<span style="font-size:13px;color:var(--muted)">${esc(item.category)}</span>`:''}
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+        <button class="qa-btn" style="padding:8px 12px;font-size:13px;flex:unset" onclick="quickAction('${id}','add');closeModal('detail-modal')">+1 📦 Bought</button>
+        <button class="qa-btn" style="padding:8px 12px;font-size:13px;flex:unset" onclick="quickAction('${id}','open');closeModal('detail-modal')">🟡 Mark Open</button>
+        <button class="qa-btn" style="padding:8px 12px;font-size:13px;flex:unset" onclick="quickAction('${id}','empty');closeModal('detail-modal')">🔴 Mark Empty</button>
+        <button class="qa-btn" style="padding:8px 12px;font-size:13px;flex:unset" onclick="openEditModal('${id}')">✏️ Edit</button>
+      </div>
+      <div class="section-label" style="margin-top:16px">History (${hist.length} events)</div>
+      <div class="history-list">
+        ${hist.length?hist.map(h=>`
+          <div class="history-item">
+            <div class="history-dot" style="background:${actionColor(h.action||'')}"></div>
+            <div>
+              <div>${esc(h.action||'')}</div>
+              <div class="history-time">${new Date(h.created_at).toLocaleString()}</div>
+            </div>
+          </div>
+        `).join(''):'<div style="color:var(--muted);font-size:13px;padding:8px 0">No history yet.</div>'}
+      </div>
+    `;
+  } catch(e){ document.getElementById('detail-content').innerHTML=`<div style="color:var(--red)">Error: ${e.message}</div>`; }
+}
+
+// ─── SCANNER ──────────────────────────────────────────────
+let scannerRunning=false;
+
+function openScanModal() {
+  show('scan-modal');
+  setTimeout(startScanner, 300);
+}
+
+function startScanner() {
+  if(scannerRunning) return;
+  document.getElementById('scan-status').textContent='Starting camera…';
+  Quagga.init({
+    inputStream:{
+      type:'LiveStream',
+      target: document.getElementById('interactive'),
+      constraints:{ facingMode:'environment', width:{ideal:1280}, height:{ideal:720} }
+    },
+    decoder:{ readers:['ean_reader','ean_8_reader','upc_reader','upc_e_reader','code_128_reader','code_39_reader'] },
+    locate:true
+  }, err=>{
+    if(err){ document.getElementById('scan-status').textContent='Camera error: '+err; return; }
+    Quagga.start();
+    scannerRunning=true;
+    document.getElementById('scan-status').textContent='Point camera at a barcode…';
+
+    // Add scan overlay
+    const sc=document.getElementById('scanner-container');
+    if(!sc.querySelector('.scan-overlay')){
+      sc.innerHTML+=`<div class="scan-overlay"><div class="scan-box"></div></div>`;
+    }
+  });
+
+  let lastCode='', lastTime=0;
+  Quagga.onDetected(result=>{
+    const code=result.codeResult.code;
+    const now=Date.now();
+    if(code===lastCode && now-lastTime<2000) return;
+    lastCode=code; lastTime=now;
+    document.getElementById('scan-status').textContent='✅ Found: '+code+' — looking up…';
+    stopScanner();
+    closeModal('scan-modal');
+    lookupBarcode(code);
+  });
+}
+
+function stopScanner() {
+  if(!scannerRunning) return;
+  Quagga.stop();
+  scannerRunning=false;
+  document.getElementById('interactive').innerHTML='';
+}
+
+async function lookupBarcode(code) {
+  toast('Looking up barcode…');
+  try {
+    const r=await fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`);
+    const d=await r.json();
+    if(d.status===1 && d.product){
+      const p=d.product;
+      const name=p.product_name||p.generic_name||'';
+      const brand=p.brands||'';
+      const cat=(p.categories_tags||[])[0]?.replace('en:','')||'';
+      openAddModal({name, brand, category:cat, barcode:code});
+      toast('Product found: '+name);
+    } else {
+      openAddModal({barcode:code});
+      toast('Barcode scanned — product not in database, enter manually');
+    }
+  } catch(e){
+    openAddModal({barcode:code});
+    toast('Lookup failed — enter details manually');
+  }
+}
+
+// ─── MODAL HELPERS ────────────────────────────────────────
+function closeModal(id){ document.getElementById(id).style.display='none'; if(id==='scan-modal') stopScanner(); }
+function closeItemModal(e){ if(e.target===e.currentTarget) closeModal(e.currentTarget.id); }
+
+// ─── TOAST ────────────────────────────────────────────────
+let toastTimer;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function esc(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+</script>
+</body>
+</html>
