@@ -23,12 +23,14 @@
   .auth-box h2{font-size:18px;margin-bottom:20px;}
   .field{margin-bottom:14px;}
   .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
-  .field input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-size:15px;outline:none;}
-  .field input:focus{border-color:var(--accent);}
+  .field input,.field select{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-size:15px;outline:none;}
+  .field input:focus,.field select:focus{border-color:var(--accent);}
+  .field select option{background:var(--card);}
   .btn{width:100%;padding:13px;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .2s;}
   .btn:active{opacity:.8;}
   .btn-primary{background:linear-gradient(135deg,var(--accent),#8b5cf6);color:#fff;}
   .btn-secondary{background:var(--card);color:var(--text);border:1px solid var(--border);margin-top:10px;}
+  .btn-sm{padding:8px 14px;font-size:13px;border-radius:8px;border:none;cursor:pointer;font-weight:600;}
   .auth-error{color:var(--red);font-size:13px;margin-top:10px;text-align:center;min-height:18px;}
 
   /* APP */
@@ -37,53 +39,54 @@
   .header-left{display:flex;align-items:center;gap:10px;}
   .header-logo{font-size:22px;}
   .header-title{font-size:18px;font-weight:700;}
-  .header-actions{display:flex;gap:8px;}
-  .icon-btn{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);cursor:pointer;font-size:16px;}
+  .header-actions{display:flex;gap:6px;}
+  .icon-btn{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 9px;color:var(--text);cursor:pointer;font-size:15px;}
 
-  .toolbar{padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;}
+  .toolbar{padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;}
   .search-wrap{flex:1;min-width:150px;position:relative;}
-  .search-wrap input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 14px 9px 36px;color:var(--text);font-size:14px;outline:none;}
+  .search-wrap input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 14px 9px 34px;color:var(--text);font-size:14px;outline:none;}
   .search-wrap input:focus{border-color:var(--accent);}
-  .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;}
-  .filters{display:flex;gap:6px;flex-wrap:wrap;}
-  .filter-btn{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap;}
+  .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;}
+  .filters{display:flex;gap:5px;flex-wrap:wrap;}
+  .filter-btn{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:5px 10px;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap;}
   .filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
 
-  .stats{display:flex;gap:8px;padding:12px 16px;overflow-x:auto;}
-  .stat-chip{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 14px;text-align:center;flex-shrink:0;}
-  .stat-chip .num{font-size:20px;font-weight:700;}
+  .stats{display:flex;gap:8px;padding:10px 16px;overflow-x:auto;}
+  .stat-chip{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:7px 12px;text-align:center;flex-shrink:0;}
+  .stat-chip .num{font-size:18px;font-weight:700;}
   .stat-chip .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
   .stat-chip.green .num{color:var(--green);}
   .stat-chip.yellow .num{color:var(--yellow);}
   .stat-chip.red .num{color:var(--red);}
   .stat-chip.orange .num{color:var(--orange);}
 
-  .items-grid{padding:12px 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:10px;}
-  .item-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;cursor:pointer;transition:transform .15s;position:relative;}
+  .items-grid{padding:12px 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;}
+  .item-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:13px;cursor:pointer;transition:transform .15s;position:relative;}
   .item-card:active{transform:scale(.97);}
   .item-card.stocked{border-left:3px solid var(--green);}
   .item-card.open{border-left:3px solid var(--yellow);}
   .item-card.empty{border-left:3px solid var(--red);opacity:.8;}
   .item-card.low{border-left:3px solid var(--orange);}
-  .item-emoji{font-size:28px;margin-bottom:4px;}
-  .item-name{font-size:14px;font-weight:600;margin-bottom:2px;line-height:1.3;}
-  .item-brand{font-size:11px;color:var(--muted);margin-bottom:6px;}
-  .item-counts{display:flex;gap:5px;margin-bottom:6px;flex-wrap:wrap;}
+  .item-emoji{font-size:26px;margin-bottom:4px;}
+  .item-name{font-size:13px;font-weight:600;margin-bottom:2px;line-height:1.3;}
+  .item-brand{font-size:11px;color:var(--muted);margin-bottom:5px;}
+  .item-counts{display:flex;gap:5px;margin-bottom:5px;flex-wrap:wrap;}
   .count-pill{font-size:11px;padding:2px 7px;border-radius:10px;font-weight:600;}
   .count-stocked{background:#1a3d2b;color:var(--green);}
   .count-open{background:#3d2e0a;color:var(--yellow);}
-  .item-badges{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;}
+  .item-badges{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px;}
   .badge{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;text-transform:uppercase;}
   .badge-priority{background:#2d1f5e;color:#a78bfa;}
   .badge-expiring{background:#3d2200;color:var(--orange);}
   .badge-expired{background:#3d0e0e;color:var(--red);}
+  .badge-cat{background:var(--surface);color:var(--muted);border:1px solid var(--border);}
   .quick-actions{display:flex;gap:4px;flex-wrap:wrap;}
-  .qa-btn{flex:1;min-width:44px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 2px;font-size:11px;color:var(--text);cursor:pointer;text-align:center;line-height:1.3;}
+  .qa-btn{flex:1;min-width:40px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:5px 2px;font-size:11px;color:var(--text);cursor:pointer;text-align:center;line-height:1.3;}
   .qa-btn:active{background:var(--accent);border-color:var(--accent);}
   .empty-state{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--muted);}
   .empty-state .big{font-size:48px;margin-bottom:10px;}
 
-  .fab{position:fixed;bottom:24px;right:24px;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#8b5cf6);border:none;color:#fff;font-size:26px;cursor:pointer;box-shadow:0 4px 20px rgba(108,99,255,.5);display:flex;align-items:center;justify-content:center;z-index:50;}
+  .fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#8b5cf6);border:none;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(108,99,255,.5);display:flex;align-items:center;justify-content:center;z-index:50;}
 
   /* MODAL */
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:flex;align-items:flex-end;justify-content:center;}
@@ -98,8 +101,6 @@
   .stepper{display:flex;align-items:center;gap:8px;}
   .stepper button{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
   .stepper span{min-width:28px;text-align:center;font-size:16px;font-weight:700;}
-
-  /* toggle */
   .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);}
   .toggle-row label{font-size:14px;}
   .toggle-row small{font-size:11px;color:var(--muted);display:block;}
@@ -109,13 +110,12 @@
   .toggle-slider:before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;}
   .toggle input:checked+.toggle-slider{background:var(--accent);}
   .toggle input:checked+.toggle-slider:before{transform:translateX(20px);}
-
   .history-list{margin-top:8px;}
   .history-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
   .history-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0;}
   .history-time{color:var(--muted);font-size:11px;}
 
-  /* scanner */
+  /* SCANNER */
   #scanner-container{position:relative;width:100%;border-radius:10px;overflow:hidden;background:#000;}
   #scanner-container video{width:100%;display:block;}
   #scanner-container canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
@@ -123,7 +123,25 @@
   .scan-box{width:220px;height:120px;border:2px solid var(--accent);border-radius:10px;box-shadow:0 0 0 1000px rgba(0,0,0,.4);}
   .scan-status{text-align:center;padding:8px;font-size:13px;color:var(--muted);}
 
-  /* shopping list modal */
+  /* QUICK INVENTORY */
+  .inv-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+  .inv-emoji{font-size:22px;flex-shrink:0;}
+  .inv-info{flex:1;min-width:0;}
+  .inv-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .inv-cat{font-size:11px;color:var(--muted);}
+  .inv-controls{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+  .inv-controls button{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .inv-controls span{min-width:24px;text-align:center;font-size:15px;font-weight:700;}
+  .inv-open-btn{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:11px;color:var(--yellow);cursor:pointer;}
+  .inv-open-btn.active{background:#3d2e0a;border-color:var(--yellow);}
+
+  /* PRIORITY BULK */
+  .pri-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+  .pri-emoji{font-size:20px;flex-shrink:0;}
+  .pri-name{flex:1;font-size:14px;}
+  .pri-cat{font-size:11px;color:var(--muted);}
+
+  /* SHOPPING LIST */
   .shop-section{margin-bottom:20px;}
   .shop-section h3{font-size:14px;font-weight:700;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
   .shop-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
@@ -136,8 +154,20 @@
   .shop-tag.buy-soon{background:var(--orange);color:#fff;}
   .shop-tag.priority{background:#2d1f5e;color:#a78bfa;}
 
-  /* print styles */
-  @media print {
+  /* CATEGORIES */
+  .cat-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+  .cat-item span{flex:1;font-size:14px;}
+  .cat-del{background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:4px;}
+
+  /* ACTION GRID */
+  .action-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+  .action-btn{padding:12px 8px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;cursor:pointer;text-align:center;line-height:1.4;}
+  .action-btn:active{opacity:.75;}
+  .action-btn.green{border-color:var(--green);background:#1a3d2b;color:var(--green);}
+  .action-btn.yellow{border-color:var(--yellow);background:#3d2e0a;color:var(--yellow);}
+  .action-btn.red{border-color:var(--red);background:#3d0e0e;color:var(--red);}
+
+  @media print{
     body{background:#fff;color:#000;}
     #app-screen,#auth-screen,header,.toolbar,.stats,.fab,#toast{display:none!important;}
     #print-area{display:block!important;}
@@ -152,12 +182,6 @@
   .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px;}
   @keyframes spin{to{transform:rotate(360deg);}}
   .loading-screen{display:flex;align-items:center;justify-content:center;min-height:200px;color:var(--muted);}
-  .action-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
-  .action-btn{padding:12px 8px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;cursor:pointer;text-align:center;line-height:1.4;}
-  .action-btn:active{opacity:.75;}
-  .action-btn.green{border-color:var(--green);background:#1a3d2b;color:var(--green);}
-  .action-btn.yellow{border-color:var(--yellow);background:#3d2e0a;color:var(--yellow);}
-  .action-btn.red{border-color:var(--red);background:#3d0e0e;color:var(--red);}
 </style>
 </head>
 <body>
@@ -185,8 +209,11 @@
       <span class="header-title">PantryPal</span>
     </div>
     <div class="header-actions">
-      <button class="icon-btn" onclick="openShoppingList()" title="Shopping list">🛒</button>
+      <button class="icon-btn" onclick="openInventoryModal()" title="Quick Inventory">📋</button>
+      <button class="icon-btn" onclick="openPriorityModal()" title="Set Priorities">⭐</button>
+      <button class="icon-btn" onclick="openShoppingList()" title="Shopping List">🛒</button>
       <button class="icon-btn" onclick="openScanModal()" title="Scan">📷</button>
+      <button class="icon-btn" onclick="openCatModal()" title="Categories">🏷️</button>
       <button class="icon-btn" onclick="signOut()">🚪</button>
     </div>
   </header>
@@ -229,15 +256,23 @@
     <h2 id="item-modal-title">Add Item</h2>
     <div class="field"><label>Name *</label><input type="text" id="item-name" placeholder="e.g. Pasta Sauce"></div>
     <div class="field"><label>Brand</label><input type="text" id="item-brand" placeholder="e.g. Dolmio"></div>
-    <div class="field"><label>Category</label><input type="text" id="item-category" placeholder="e.g. Sauces, Snacks…"></div>
+    <div class="field">
+      <label>Category</label>
+      <select id="item-category-id">
+        <option value="">— No category —</option>
+      </select>
+    </div>
     <div class="field"><label>Expiry Date <span style="color:var(--muted);font-size:11px">(optional)</span></label>
-      <input type="date" id="item-expiry" style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-size:15px;outline:none;width:100%;">
+      <input type="date" id="item-expiry">
     </div>
     <div class="section-label">How many sealed/stocked?</div>
     <div class="stepper-row"><label>📦 Stocked</label><div class="stepper"><button onclick="stepQty('stocked',-1)">−</button><span id="val-stocked">1</span><button onclick="stepQty('stocked',1)">+</button></div></div>
     <div class="section-label">How many currently open?</div>
     <div class="stepper-row"><label>🔓 Open</label><div class="stepper"><button onclick="stepQty('open',-1)">−</button><span id="val-open">0</span><button onclick="stepQty('open',1)">+</button></div></div>
-    <div class="toggle-row" style="margin-top:16px">
+    <div class="section-label">Minimum stock before flagging low</div>
+    <div class="stepper-row"><label>⚠️ Min Stock</label><div class="stepper"><button onclick="stepQty('min',-1)">−</button><span id="val-min">0</span><button onclick="stepQty('min',1)">+</button></div></div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px">0 = use default logic. Set to 2+ to flag low when stock drops below that number.</div>
+    <div class="toggle-row" style="margin-top:8px">
       <div><label style="font-weight:600">⭐ Priority Item</label><small>Always appears on shopping list</small></div>
       <label class="toggle"><input type="checkbox" id="item-priority"><span class="toggle-slider"></span></label>
     </div>
@@ -255,6 +290,49 @@
     <button class="modal-close" onclick="closeModal('detail-modal')">✕</button>
     <h2 id="detail-name"></h2>
     <div id="detail-content"></div>
+  </div>
+</div>
+
+<!-- MODAL: Quick Inventory -->
+<div class="modal-overlay" id="inventory-modal" style="display:none" onclick="closeItemModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('inventory-modal')">✕</button>
+    <h2>📋 Quick Inventory</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Set quantities for all items quickly. Changes save automatically.</p>
+    <div style="margin-bottom:12px">
+      <input type="text" id="inv-search" placeholder="🔍 Filter items…" oninput="renderInventory()" style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-size:14px;outline:none;">
+    </div>
+    <div id="inventory-list"></div>
+  </div>
+</div>
+
+<!-- MODAL: Bulk Priority -->
+<div class="modal-overlay" id="priority-modal" style="display:none" onclick="closeItemModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('priority-modal')">✕</button>
+    <h2>⭐ Set Priority Items</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Toggle on items you always want to keep stocked. They'll always appear on your shopping list.</p>
+    <div style="margin-bottom:12px">
+      <input type="text" id="pri-search" placeholder="🔍 Filter items…" oninput="renderPriorityList()" style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-size:14px;outline:none;">
+    </div>
+    <div id="priority-list"></div>
+  </div>
+</div>
+
+<!-- MODAL: Categories -->
+<div class="modal-overlay" id="cat-modal" style="display:none" onclick="closeItemModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('cat-modal')">✕</button>
+    <h2>🏷️ Manage Categories</h2>
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <input type="text" id="new-cat-name" placeholder="Category name" style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-size:14px;outline:none;">
+      <input type="text" id="new-cat-emoji" placeholder="🏷️" style="width:60px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px;color:var(--text);font-size:20px;outline:none;text-align:center;">
+      <button class="btn-sm btn-primary" onclick="addCategory()" style="flex-shrink:0">Add</button>
+    </div>
+    <div id="cat-list"></div>
   </div>
 </div>
 
@@ -281,17 +359,12 @@
   </div>
 </div>
 
-<!-- PRINT AREA -->
 <div id="print-area"></div>
-
 <div id="toast"></div>
 
 <script>
 const SUPABASE_URL='https://kfbvmabnblxwznmrjhny.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmYnZtYWJuYmx4d3pubXJqaG55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MjM1MjQsImV4cCI6MjA5NjM5OTUyNH0._m5LmH81Xk3RU63jvKO7vs8R4lnPINHD3MMAXJwQOxc';
-
-const CATEGORY_EMOJI={dairy:'🥛','dairy-free':'🌾',milk:'🥛',cheese:'🧀',egg:'🥚',bread:'🍞',pasta:'🍝',rice:'🍚',grain:'🌾',cereal:'🥣',fruit:'🍎',vegetable:'🥦',veg:'🥦',produce:'🥬',meat:'🥩',chicken:'🍗',fish:'🐟',seafood:'🦐',snack:'🍪',chip:'🍟',chocolate:'🍫',candy:'🍬',sweet:'🍬',drink:'🥤',juice:'🍊',coffee:'☕',tea:'🍵',water:'💧',soda:'🥤',sauce:'🍶',condiment:'🧴',oil:'🫙',spice:'🧂',herb:'🌿',soup:'🍲',can:'🥫',tin:'🥫',bean:'🫘',lentil:'🫘',frozen:'🧊',cleaning:'🧹',soap:'🧼',hygiene:'🪥'};
-function guessEmoji(n='',c=''){const s=(n+' '+c).toLowerCase();for(const[k,v]of Object.entries(CATEGORY_EMOJI))if(s.includes(k))return v;return'🥫';}
 
 async function sbFetch(path,opts={}){
   const r=await fetch(SUPABASE_URL+path,{...opts,headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,...(opts.headers||{})}});
@@ -304,27 +377,33 @@ function show(id){document.getElementById(id).style.display='flex';}
 function hide(id){document.getElementById(id).style.display='none';}
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 
-// expiry helpers
-function expiryStatus(dateStr){
-  if(!dateStr)return null;
-  const diff=Math.ceil((new Date(dateStr)-new Date())/(1000*60*60*24));
-  if(diff<0)return'expired';
-  if(diff<=7)return'expiring';
-  return'ok';
+// ── Expiry ────────────────────────────────────────────────
+function expiryStatus(ds){
+  if(!ds)return null;
+  const diff=Math.ceil((new Date(ds)-new Date())/(864e5));
+  return diff<0?'expired':diff<=7?'expiring':'ok';
 }
-function expiryLabel(dateStr){
-  if(!dateStr)return'';
-  const diff=Math.ceil((new Date(dateStr)-new Date())/(1000*60*60*24));
+function expiryLabel(ds){
+  if(!ds)return'';
+  const diff=Math.ceil((new Date(ds)-new Date())/(864e5));
   if(diff<0)return`Expired ${Math.abs(diff)}d ago`;
   if(diff===0)return'Expires today!';
   if(diff<=7)return`Expires in ${diff}d`;
-  return new Date(dateStr).toLocaleDateString();
+  return new Date(ds).toLocaleDateString();
 }
 
-function calcStatus(stocked,open){
-  if(stocked===0&&open===0)return'empty';
-  if(stocked===1)return'low';
-  if(stocked>1)return'stocked';
+// ── Low stock logic ───────────────────────────────────────
+function isLow(item){
+  const s=item.qty_stocked||0, o=item.qty_open||0, min=item.min_stock||0;
+  if(min>0) return s<min;          // custom minimum
+  return s===1 && o===0;           // default: 1 sealed, nothing open
+}
+
+function calcStatus(item){
+  const s=item.qty_stocked||0, o=item.qty_open||0;
+  if(s===0&&o===0) return'empty';
+  if(isLow(item)) return'low';
+  if(s>0) return'stocked';
   return'open';
 }
 
@@ -348,23 +427,43 @@ async function signUp(){
     document.getElementById('auth-error').textContent='Account created! Please sign in.';
   }catch(e){document.getElementById('auth-error').textContent=e.message;}
 }
-function signOut(){hide('app-screen');show('auth-screen');items=[];}
-function enterApp(){hide('auth-screen');show('app-screen');loadItems();}
+function signOut(){hide('app-screen');show('auth-screen');items=[];categories=[];}
+function enterApp(){hide('auth-screen');show('app-screen');loadAll();}
 
 // ── Data ──────────────────────────────────────────────────
-let items=[],currentFilter='all';
-async function loadItems(){
-  try{items=await sbFetch('/rest/v1/items?order=name.asc&select=*');renderItems();}
-  catch(e){toast('Error loading: '+e.message);}
+let items=[],categories=[],currentFilter='all';
+
+async function loadAll(){
+  try{
+    [items,categories]=await Promise.all([
+      sbFetch('/rest/v1/items?order=name.asc&select=*'),
+      sbFetch('/rest/v1/categories?order=name.asc&select=*')
+    ]);
+    populateCategorySelect();
+    renderItems();
+  }catch(e){toast('Error loading: '+e.message);}
+}
+
+function catName(id){
+  const c=categories.find(c=>c.id===id);
+  return c?c.emoji+' '+c.name:'';
+}
+
+function populateCategorySelect(){
+  const sel=document.getElementById('item-category-id');
+  sel.innerHTML='<option value="">— No category —</option>';
+  categories.forEach(c=>{
+    const o=document.createElement('option');
+    o.value=c.id; o.textContent=c.emoji+' '+c.name;
+    sel.appendChild(o);
+  });
 }
 
 function renderItems(){
   const q=document.getElementById('search-input').value.toLowerCase();
-  const today=new Date();
-
   const filtered=items.filter(i=>{
-    const match=!q||i.name.toLowerCase().includes(q)||(i.brand||'').toLowerCase().includes(q)||(i.category||'').toLowerCase().includes(q);
-    const st=calcStatus(i.qty_stocked||0,i.qty_open||0);
+    const match=!q||i.name.toLowerCase().includes(q)||(i.brand||'').toLowerCase().includes(q);
+    const st=calcStatus(i);
     const es=expiryStatus(i.expiry_date);
     if(!match)return false;
     if(currentFilter==='all')return true;
@@ -374,10 +473,10 @@ function renderItems(){
     return st===currentFilter;
   });
 
-  document.getElementById('stat-stocked').textContent=items.filter(i=>(i.qty_stocked||0)>1).length;
-  document.getElementById('stat-low').textContent=items.filter(i=>(i.qty_stocked||0)===1).length;
-  document.getElementById('stat-open').textContent=items.filter(i=>(i.qty_open||0)>0).length;
-  document.getElementById('stat-empty').textContent=items.filter(i=>(i.qty_stocked||0)===0&&(i.qty_open||0)===0).length;
+  document.getElementById('stat-stocked').textContent=items.filter(i=>calcStatus(i)==='stocked').length;
+  document.getElementById('stat-low').textContent=items.filter(i=>calcStatus(i)==='low').length;
+  document.getElementById('stat-open').textContent=items.filter(i=>calcStatus(i)==='open').length;
+  document.getElementById('stat-empty').textContent=items.filter(i=>calcStatus(i)==='empty').length;
   document.getElementById('stat-total').textContent=items.length;
 
   const grid=document.getElementById('items-grid');
@@ -385,23 +484,23 @@ function renderItems(){
     grid.innerHTML=`<div class="empty-state"><div class="big">🥫</div><div>No items found</div><div style="font-size:12px;margin-top:6px">Tap + to add your first item</div></div>`;
     return;
   }
-
   grid.innerHTML=filtered.map(item=>{
-    const stocked=item.qty_stocked||0,open=item.qty_open||0;
-    const st=calcStatus(stocked,open);
+    const st=calcStatus(item);
     const es=expiryStatus(item.expiry_date);
+    const cat=catName(item.category_id);
     const badges=[
-      item.priority?`<span class="badge badge-priority">⭐ Priority</span>`:'',
+      item.priority?`<span class="badge badge-priority">⭐</span>`:'',
       es==='expiring'?`<span class="badge badge-expiring">⚠️ ${expiryLabel(item.expiry_date)}</span>`:'',
-      es==='expired'?`<span class="badge badge-expired">🔴 ${expiryLabel(item.expiry_date)}</span>`:''
+      es==='expired'?`<span class="badge badge-expired">🔴 Expired</span>`:'',
+      cat?`<span class="badge badge-cat">${cat}</span>`:''
     ].filter(Boolean).join('');
     return`<div class="item-card ${st}" onclick="openDetailModal('${item.id}')">
       <div class="item-emoji">${item.emoji||'🥫'}</div>
       <div class="item-name">${esc(item.name)}</div>
       <div class="item-brand">${esc(item.brand||'')}</div>
       <div class="item-counts">
-        <span class="count-pill count-stocked">📦 ${stocked}</span>
-        <span class="count-pill count-open">🔓 ${open}</span>
+        <span class="count-pill count-stocked">📦 ${item.qty_stocked||0}</span>
+        <span class="count-pill count-open">🔓 ${item.qty_open||0}</span>
       </div>
       ${badges?`<div class="item-badges">${badges}</div>`:''}
       <div class="quick-actions" onclick="event.stopPropagation()">
@@ -422,11 +521,11 @@ function setFilter(f,btn){
 
 async function quickAction(id,action){
   const item=items.find(i=>i.id===id);if(!item)return;
-  let stocked=item.qty_stocked||0,open=item.qty_open||0,note='';
-  if(action==='bought'){stocked++;note='Bought 1 more';}
-  else if(action==='openone'){if(stocked<1){toast('No sealed stock to open!');return;}stocked--;open++;note='Opened one';}
-  else if(action==='finished'){if(open<1){toast('Nothing currently open!');return;}open--;note='Finished one';}
-  const update={qty_stocked:stocked,qty_open:open,updated_at:new Date().toISOString()};
+  let s=item.qty_stocked||0,o=item.qty_open||0,note='';
+  if(action==='bought'){s++;note='Bought 1 more';}
+  else if(action==='openone'){if(s<1){toast('No sealed stock to open!');return;}s--;o++;note='Opened one';}
+  else if(action==='finished'){if(o<1){toast('Nothing currently open!');return;}o--;note='Finished one';}
+  const update={qty_stocked:s,qty_open:o,updated_at:new Date().toISOString()};
   try{
     await sbFetch(`/rest/v1/items?id=eq.${id}`,{method:'PATCH',headers:{'Prefer':'return=representation'},body:JSON.stringify(update)});
     await sbFetch('/rest/v1/history',{method:'POST',body:JSON.stringify({item_id:id,action:note})});
@@ -435,7 +534,7 @@ async function quickAction(id,action){
 }
 
 // ── Add/Edit ──────────────────────────────────────────────
-let editingId=null,formQty={stocked:1,open:0};
+let editingId=null,formQty={stocked:1,open:0,min:0};
 function stepQty(t,d){formQty[t]=Math.max(0,(formQty[t]||0)+d);document.getElementById('val-'+t).textContent=formQty[t];}
 
 function openAddModal(prefill={}){
@@ -443,13 +542,14 @@ function openAddModal(prefill={}){
   document.getElementById('item-modal-title').textContent='Add Item';
   document.getElementById('item-name').value=prefill.name||'';
   document.getElementById('item-brand').value=prefill.brand||'';
-  document.getElementById('item-category').value=prefill.category||'';
+  document.getElementById('item-category-id').value='';
   document.getElementById('item-expiry').value='';
   document.getElementById('item-priority').checked=false;
   document.getElementById('item-barcode').value=prefill.barcode||'';
-  formQty={stocked:1,open:0};
+  formQty={stocked:1,open:0,min:0};
   document.getElementById('val-stocked').textContent=1;
   document.getElementById('val-open').textContent=0;
+  document.getElementById('val-min').textContent=0;
   document.getElementById('item-save-btn').textContent='Add to Pantry';
   document.getElementById('item-delete-btn').style.display='none';
   show('item-modal');
@@ -461,13 +561,14 @@ function openEditModal(id){
   document.getElementById('item-modal-title').textContent='Edit Item';
   document.getElementById('item-name').value=item.name;
   document.getElementById('item-brand').value=item.brand||'';
-  document.getElementById('item-category').value=item.category||'';
+  document.getElementById('item-category-id').value=item.category_id||'';
   document.getElementById('item-expiry').value=item.expiry_date||'';
   document.getElementById('item-priority').checked=!!item.priority;
   document.getElementById('item-barcode').value=item.barcode||'';
-  formQty={stocked:item.qty_stocked||0,open:item.qty_open||0};
+  formQty={stocked:item.qty_stocked||0,open:item.qty_open||0,min:item.min_stock||0};
   document.getElementById('val-stocked').textContent=formQty.stocked;
   document.getElementById('val-open').textContent=formQty.open;
+  document.getElementById('val-min').textContent=formQty.min;
   document.getElementById('item-save-btn').textContent='Save Changes';
   document.getElementById('item-delete-btn').style.display='block';
   closeModal('detail-modal');show('item-modal');
@@ -477,12 +578,15 @@ async function saveItem(){
   const name=document.getElementById('item-name').value.trim();
   if(!name){toast('Name is required');return;}
   const brand=document.getElementById('item-brand').value.trim();
-  const cat=document.getElementById('item-category').value.trim();
+  const catId=document.getElementById('item-category-id').value||null;
   const expiry=document.getElementById('item-expiry').value||null;
   const priority=document.getElementById('item-priority').checked;
   const barcode=document.getElementById('item-barcode').value;
-  const emoji=guessEmoji(name,cat);
-  const payload={name,brand,category:cat,expiry_date:expiry,priority,barcode,emoji,qty_stocked:formQty.stocked,qty_open:formQty.open,updated_at:new Date().toISOString()};
+  const cat=categories.find(c=>c.id===catId);
+  const emoji=cat?cat.emoji:guessEmoji(name);
+  const payload={name,brand,category_id:catId,expiry_date:expiry,priority,barcode,emoji,
+    qty_stocked:formQty.stocked,qty_open:formQty.open,min_stock:formQty.min,
+    updated_at:new Date().toISOString()};
   try{
     if(editingId){
       await sbFetch(`/rest/v1/items?id=eq.${editingId}`,{method:'PATCH',headers:{'Prefer':'return=representation'},body:JSON.stringify(payload)});
@@ -494,7 +598,7 @@ async function saveItem(){
       await sbFetch('/rest/v1/history',{method:'POST',body:JSON.stringify({item_id:ni.id,action:'Item added'})});
       toast('Item added ✓');
     }
-    closeModal('item-modal');await loadItems();
+    closeModal('item-modal');await loadAll();
   }catch(e){toast('Error: '+e.message);}
 }
 
@@ -506,6 +610,13 @@ async function deleteItem(){
   }catch(e){toast('Error: '+e.message);}
 }
 
+function guessEmoji(n=''){
+  const EMAP={dairy:'🥛',milk:'🥛',cheese:'🧀',egg:'🥚',bread:'🍞',pasta:'🍝',macaroni:'🍝',spaghetti:'🍝',penne:'🍝',lasagne:'🍝',noodle:'🍝',rice:'🍚',flour:'🌾',oat:'🥣',sauce:'🍶',sause:'🍶',spice:'🧂',salt:'🧂',sugar:'🍬',cocoa:'☕',chocolate:'🍫',coffee:'☕',tea:'🍵',drink:'🥤',juice:'🍊',oil:'🫙',stock:'🍲',soup:'🍲',snack:'🍪',chips:'🍟',candy:'🍬',vitamin:'💊',wine:'🍷',meat:'🥩',fish:'🐟',frozen:'🧊',curry:'🧂',pepper:'🧂'};
+  const s=n.toLowerCase();
+  for(const[k,v]of Object.entries(EMAP))if(s.includes(k))return v;
+  return'🥫';
+}
+
 // ── Detail Modal ──────────────────────────────────────────
 async function openDetailModal(id){
   const item=items.find(i=>i.id===id);if(!item)return;
@@ -514,8 +625,9 @@ async function openDetailModal(id){
   show('detail-modal');
   try{
     const hist=await sbFetch(`/rest/v1/history?item_id=eq.${id}&order=created_at.desc&limit=30`);
-    const stocked=item.qty_stocked||0,open=item.qty_open||0;
+    const s=item.qty_stocked||0,o=item.qty_open||0;
     const es=expiryStatus(item.expiry_date);
+    const cat=catName(item.category_id);
     const actionColor=a=>{
       if(a.includes('Bought'))return'var(--green)';
       if(a.includes('Opened'))return'var(--yellow)';
@@ -524,18 +636,20 @@ async function openDetailModal(id){
     };
     document.getElementById('detail-content').innerHTML=`
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-        <span class="count-pill count-stocked" style="font-size:13px;padding:4px 12px">📦 ${stocked} sealed</span>
-        <span class="count-pill count-open" style="font-size:13px;padding:4px 12px">🔓 ${open} open</span>
+        <span class="count-pill count-stocked" style="font-size:13px;padding:4px 12px">📦 ${s} sealed</span>
+        <span class="count-pill count-open" style="font-size:13px;padding:4px 12px">🔓 ${o} open</span>
+        ${cat?`<span class="badge badge-cat">${cat}</span>`:''}
         ${item.priority?`<span class="badge badge-priority">⭐ Priority</span>`:''}
         ${es==='expiring'?`<span class="badge badge-expiring">⚠️ ${expiryLabel(item.expiry_date)}</span>`:''}
         ${es==='expired'?`<span class="badge badge-expired">🔴 ${expiryLabel(item.expiry_date)}</span>`:''}
         ${item.expiry_date&&es==='ok'?`<span style="font-size:12px;color:var(--muted)">📅 ${expiryLabel(item.expiry_date)}</span>`:''}
+        ${item.min_stock>0?`<span style="font-size:12px;color:var(--muted)">⚠️ Min: ${item.min_stock}</span>`:''}
       </div>
       <div class="action-grid">
         <button class="action-btn green" onclick="quickAction('${id}','bought');closeModal('detail-modal')">+1 📦<br><small>Bought more</small></button>
         <button class="action-btn yellow" onclick="quickAction('${id}','openone');closeModal('detail-modal')">🔓 Open one<br><small>Sealed → Open</small></button>
         <button class="action-btn red" onclick="quickAction('${id}','finished');closeModal('detail-modal')">✅ Finished one<br><small>Remove from open</small></button>
-        <button class="action-btn" onclick="openEditModal('${id}')">✏️ Edit<br><small>Adjust / set expiry</small></button>
+        <button class="action-btn" onclick="openEditModal('${id}')">✏️ Edit<br><small>Adjust / settings</small></button>
       </div>
       <div class="section-label">History (${hist.length} events)</div>
       <div class="history-list">
@@ -549,32 +663,155 @@ async function openDetailModal(id){
   }catch(e){document.getElementById('detail-content').innerHTML=`<div style="color:var(--red)">Error: ${e.message}</div>`;}
 }
 
+// ── Quick Inventory ───────────────────────────────────────
+function openInventoryModal(){
+  show('inventory-modal');
+  renderInventory();
+}
+
+function renderInventory(){
+  const q=(document.getElementById('inv-search').value||'').toLowerCase();
+  const filtered=items.filter(i=>!q||i.name.toLowerCase().includes(q));
+  const el=document.getElementById('inventory-list');
+  if(!filtered.length){el.innerHTML='<div style="color:var(--muted);text-align:center;padding:20px">No items found</div>';return;}
+  el.innerHTML=filtered.map(item=>`
+    <div class="inv-item">
+      <div class="inv-emoji">${item.emoji||'🥫'}</div>
+      <div class="inv-info">
+        <div class="inv-name">${esc(item.name)}</div>
+        <div class="inv-cat">${catName(item.category_id)||''}</div>
+      </div>
+      <div class="inv-controls">
+        <button onclick="invAdj('${item.id}',-1)">−</button>
+        <span id="inv-s-${item.id}">${item.qty_stocked||0}</span>
+        <button onclick="invAdj('${item.id}',1)">+</button>
+        <button class="inv-open-btn ${(item.qty_open||0)>0?'active':''}" onclick="invToggleOpen('${item.id}')">${(item.qty_open||0)>0?'🔓 '+item.qty_open:'🔒'}</button>
+      </div>
+    </div>`).join('');
+}
+
+async function invAdj(id,delta){
+  const item=items.find(i=>i.id===id);if(!item)return;
+  const newQty=Math.max(0,(item.qty_stocked||0)+delta);
+  try{
+    await sbFetch(`/rest/v1/items?id=eq.${id}`,{method:'PATCH',headers:{'Prefer':'return=representation'},body:JSON.stringify({qty_stocked:newQty,updated_at:new Date().toISOString()})});
+    item.qty_stocked=newQty;
+    const el=document.getElementById(`inv-s-${id}`);
+    if(el)el.textContent=newQty;
+    renderItems();
+  }catch(e){toast('Error: '+e.message);}
+}
+
+async function invToggleOpen(id){
+  const item=items.find(i=>i.id===id);if(!item)return;
+  const newOpen=(item.qty_open||0)>0?0:1;
+  try{
+    await sbFetch(`/rest/v1/items?id=eq.${id}`,{method:'PATCH',headers:{'Prefer':'return=representation'},body:JSON.stringify({qty_open:newOpen,updated_at:new Date().toISOString()})});
+    item.qty_open=newOpen;
+    renderInventory();renderItems();
+  }catch(e){toast('Error: '+e.message);}
+}
+
+// ── Bulk Priority ─────────────────────────────────────────
+function openPriorityModal(){
+  show('priority-modal');
+  renderPriorityList();
+}
+
+function renderPriorityList(){
+  const q=(document.getElementById('pri-search').value||'').toLowerCase();
+  const filtered=items.filter(i=>!q||i.name.toLowerCase().includes(q));
+  const el=document.getElementById('priority-list');
+  el.innerHTML=filtered.map(item=>`
+    <div class="pri-item">
+      <div class="pri-emoji">${item.emoji||'🥫'}</div>
+      <div style="flex:1">
+        <div class="pri-name">${esc(item.name)}</div>
+        <div class="pri-cat">${catName(item.category_id)||''}</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" ${item.priority?'checked':''} onchange="togglePriority('${item.id}',this.checked)">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>`).join('');
+}
+
+async function togglePriority(id,val){
+  const item=items.find(i=>i.id===id);if(!item)return;
+  try{
+    await sbFetch(`/rest/v1/items?id=eq.${id}`,{method:'PATCH',headers:{'Prefer':'return=representation'},body:JSON.stringify({priority:val})});
+    item.priority=val;
+    renderItems();
+    toast(val?`⭐ ${item.name} marked priority`:`${item.name} removed from priority`);
+  }catch(e){toast('Error: '+e.message);}
+}
+
+// ── Categories ────────────────────────────────────────────
+function openCatModal(){
+  show('cat-modal');
+  renderCatList();
+}
+
+function renderCatList(){
+  const el=document.getElementById('cat-list');
+  if(!categories.length){el.innerHTML='<div style="color:var(--muted);text-align:center;padding:20px">No categories yet</div>';return;}
+  el.innerHTML=categories.map(c=>`
+    <div class="cat-item">
+      <span style="font-size:20px">${c.emoji}</span>
+      <span>${esc(c.name)}</span>
+      <button class="cat-del" onclick="deleteCategory('${c.id}')">🗑</button>
+    </div>`).join('');
+}
+
+async function addCategory(){
+  const name=document.getElementById('new-cat-name').value.trim();
+  const emoji=document.getElementById('new-cat-emoji').value.trim()||'📦';
+  if(!name){toast('Enter a category name');return;}
+  try{
+    const res=await sbFetch('/rest/v1/categories',{method:'POST',headers:{'Prefer':'return=representation'},body:JSON.stringify({name,emoji})});
+    const nc=Array.isArray(res)?res[0]:res;
+    categories.push(nc);
+    categories.sort((a,b)=>a.name.localeCompare(b.name));
+    document.getElementById('new-cat-name').value='';
+    document.getElementById('new-cat-emoji').value='';
+    populateCategorySelect();
+    renderCatList();
+    toast('Category added ✓');
+  }catch(e){toast('Error: '+e.message);}
+}
+
+async function deleteCategory(id){
+  if(!confirm('Delete this category? Items will be uncategorised.'))return;
+  try{
+    await sbFetch(`/rest/v1/categories?id=eq.${id}`,{method:'DELETE'});
+    categories=categories.filter(c=>c.id!==id);
+    items.forEach(i=>{if(i.category_id===id)i.category_id=null;});
+    populateCategorySelect();renderCatList();renderItems();toast('Category deleted');
+  }catch(e){toast('Error: '+e.message);}
+}
+
 // ── Shopping List ─────────────────────────────────────────
 function openShoppingList(){
-  const priority=[], other=[];
+  const priority=[],other=[];
   items.forEach(item=>{
-    const stocked=item.qty_stocked||0, open=item.qty_open||0;
-    const isEmpty=stocked===0&&open===0;
-    const isLow=stocked===1;
-    const alwaysBuy=item.priority;
-    if(!isEmpty&&!isLow&&!alwaysBuy)return;
-    const tag=isEmpty?'buy-now':isLow?'buy-soon':'priority';
-    const label=isEmpty?'BUY NOW':isLow?'BUY SOON':'PRIORITY';
-    const entry={item,tag,label};
-    if(item.priority)priority.push(entry);
-    else other.push(entry);
+    const st=calcStatus(item);
+    const isEmpty=st==='empty', isLowItem=st==='low';
+    if(!isEmpty&&!isLowItem&&!item.priority)return;
+    const tag=isEmpty?'buy-now':isLowItem?'buy-soon':'priority';
+    const label=isEmpty?'BUY NOW':isLowItem?'BUY SOON':'PRIORITY';
+    if(item.priority)priority.push({item,tag,label});
+    else other.push({item,tag,label});
   });
 
   const renderSection=(title,list)=>{
     if(!list.length)return'';
-    return`<div class="shop-section">
-      <h3>${title} (${list.length})</h3>
+    return`<div class="shop-section"><h3>${title} (${list.length})</h3>
       ${list.map(({item,tag,label})=>`
         <div class="shop-item">
           <div class="shop-item-emoji">${item.emoji||'🥫'}</div>
           <div class="shop-item-info">
             <div class="shop-item-name">${esc(item.name)}</div>
-            <div class="shop-item-brand">${esc(item.brand||'')} ${item.category?'· '+esc(item.category):''}</div>
+            <div class="shop-item-brand">${esc(item.brand||'')}${catName(item.category_id)?' · '+catName(item.category_id):''}</div>
           </div>
           <span class="shop-tag ${tag}">${label}</span>
         </div>`).join('')}
@@ -592,10 +829,10 @@ function openShoppingList(){
 function printShoppingList(){
   const priority=[],other=[];
   items.forEach(item=>{
-    const stocked=item.qty_stocked||0,open=item.qty_open||0;
-    const isEmpty=stocked===0&&open===0,isLow=stocked===1;
-    if(!isEmpty&&!isLow&&!item.priority)return;
-    const label=isEmpty?'BUY NOW':isLow?'BUY SOON':'PRIORITY';
+    const st=calcStatus(item);
+    const isEmpty=st==='empty',isLowItem=st==='low';
+    if(!isEmpty&&!isLowItem&&!item.priority)return;
+    const label=isEmpty?'BUY NOW':isLowItem?'BUY SOON':'PRIORITY';
     if(item.priority)priority.push({item,label});
     else other.push({item,label});
   });
@@ -640,7 +877,7 @@ async function lookupBarcode(code){
     const d=await r.json();
     if(d.status===1&&d.product){
       const p=d.product;
-      openAddModal({name:p.product_name||p.generic_name||'',brand:p.brands||'',category:(p.categories_tags||[])[0]?.replace('en:','')||'',barcode:code});
+      openAddModal({name:p.product_name||p.generic_name||'',brand:p.brands||'',barcode:code});
       toast('Product found!');
     }else{openAddModal({barcode:code});toast('Enter details manually');}
   }catch(e){openAddModal({barcode:code});toast('Lookup failed — enter manually');}
