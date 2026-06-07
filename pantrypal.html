@@ -24,6 +24,16 @@
   .filters{display:flex;gap:5px;flex-wrap:wrap;}
   .filter-btn{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:5px 10px;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap;}
   .filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .sort-btn{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:5px 10px;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap;}
+  .sort-btn.active{background:#1a3d2b;border-color:var(--green);color:var(--green);}
+  .cat-group-header{grid-column:1/-1;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:8px 0 4px;border-bottom:1px solid var(--border);margin-bottom:4px;}
+  .badge-hate{background:#3d0e0e;color:var(--red);}
+  .badge-love{background:#1a3d2b;color:var(--green);}
+  .rating-toggle{display:flex;gap:6px;margin-bottom:14px;}
+  .rating-opt{flex:1;padding:10px 4px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:12px;cursor:pointer;text-align:center;font-weight:600;}
+  .rating-opt.selected-unsure{border-color:var(--muted);background:rgba(136,146,176,.15);color:var(--muted);}
+  .rating-opt.selected-love{border-color:var(--green);background:#1a3d2b;color:var(--green);}
+  .rating-opt.selected-hate{border-color:var(--red);background:#3d0e0e;color:var(--red);}
   .stats{display:flex;gap:8px;padding:10px 16px;overflow-x:auto;}
   .stat-chip{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:7px 12px;text-align:center;flex-shrink:0;}
   .stat-chip .num{font-size:18px;font-weight:700;}
@@ -182,6 +192,7 @@
       <button class="filter-btn" onclick="setFilter('empty',this)">🔴</button>
       <button class="filter-btn" onclick="setFilter('expiring',this)">⚠️</button>
       <button class="filter-btn" onclick="setFilter('priority',this)">⭐</button>
+      <button class="sort-btn" id="cat-sort-btn" onclick="toggleCatSort()">🏷️ By Category</button>
     </div>
   </div>
   <div class="stats">
@@ -228,6 +239,13 @@
     <div class="section-label">Minimum stock before flagging low</div>
     <div class="stepper-row"><label>⚠️ Min Stock</label><div class="stepper"><button onclick="stepQty('min',-1)">−</button><span id="val-min">0</span><button onclick="stepQty('min',1)">+</button></div></div>
     <div style="font-size:11px;color:var(--muted);margin-bottom:8px">0 = use default logic.</div>
+    <div class="section-label">Rating</div>
+    <div class="rating-toggle">
+      <button class="rating-opt selected-unsure" data-r="unsure" onclick="selectRating('unsure',this)">😐 Not sure</button>
+      <button class="rating-opt" data-r="love" onclick="selectRating('love',this)">❤️ Love it</button>
+      <button class="rating-opt" data-r="hate" onclick="selectRating('hate',this)">😬 Don't buy</button>
+    </div>
+    <input type="hidden" id="item-rating" value="unsure">
     <div class="toggle-row" style="margin-top:8px">
       <div><label style="font-weight:600">⭐ Priority Item</label><small>Always appears on shopping list</small></div>
       <label class="toggle"><input type="checkbox" id="item-priority"><span class="toggle-slider"></span></label>
@@ -357,12 +375,19 @@ function isLow(item){const s=item.qty_stocked||0,o=item.qty_open||0,m=item.min_s
 function calcStatus(item){const s=item.qty_stocked||0,o=item.qty_open||0;if(s===0&&o===0)return'empty';if(isLow(item))return'low';if(s>0)return'stocked';return'open';}
 function catName(id){const c=categories.find(c=>c.id===id);return c?c.emoji+' '+c.name:'';}
 
-let items=[],categories=[],currentFilter='all';
+let items=[],categories=[],currentFilter='all',groupByCategory=false;
 async function loadAll(){
   try{[items,categories]=await Promise.all([sbFetch('/rest/v1/items?order=name.asc&select=*'),sbFetch('/rest/v1/categories?order=name.asc&select=*')]);populateCategorySelect();renderItems();}
   catch(e){toast('Error loading: '+e.message);}
 }
 function populateCategorySelect(){const sel=document.getElementById('item-category-id');sel.innerHTML='<option value="">— No category —</option>';categories.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.emoji+' '+c.name;sel.appendChild(o);});}
+
+function toggleCatSort(){
+  groupByCategory=!groupByCategory;
+  const btn=document.getElementById('cat-sort-btn');
+  btn.classList.toggle('active',groupByCategory);
+  renderItems();
+}
 
 function renderItems(){
   const q=document.getElementById('search-input').value.toLowerCase();
@@ -374,10 +399,12 @@ function renderItems(){
   document.getElementById('stat-total').textContent=items.length;
   const grid=document.getElementById('items-grid');
   if(!filtered.length){grid.innerHTML=`<div class="empty-state"><div class="big">🥫</div><div>No items found</div><div style="font-size:12px;margin-top:6px">Tap + to add your first item</div></div>`;return;}
-  grid.innerHTML=filtered.map(item=>{
+
+  const renderCard=item=>{
     const st=calcStatus(item),es=expiryStatus(item.expiry_date),cat=catName(item.category_id);
     const uom=item.unit_of_measure?`<span class="badge badge-cat">${item.unit_of_measure}</span>`:'';
-    const badges=[item.priority?`<span class="badge badge-priority">⭐</span>`:'',es==='expiring'?`<span class="badge badge-expiring">⚠️ ${expiryLabel(item.expiry_date)}</span>`:'',es==='expired'?`<span class="badge badge-expired">🔴 Expired</span>`:'',cat?`<span class="badge badge-cat">${cat}</span>`:'',uom].filter(Boolean).join('');
+    const ratingBadge=item.rating==='love'?`<span class="badge badge-love">❤️ Love</span>`:item.rating==='hate'?`<span class="badge badge-hate">😬 Don't buy</span>`:'';
+    const badges=[item.priority?`<span class="badge badge-priority">⭐</span>`:'',es==='expiring'?`<span class="badge badge-expiring">⚠️ ${expiryLabel(item.expiry_date)}</span>`:'',es==='expired'?`<span class="badge badge-expired">🔴 Expired</span>`:'',cat&&!groupByCategory?`<span class="badge badge-cat">${cat}</span>`:'',uom,ratingBadge].filter(Boolean).join('');
     return`<div class="item-card ${st}" onclick="openDetailModal('${item.id}')">
       <div class="item-emoji">${item.emoji||'🥫'}</div>
       <div class="item-name">${esc(item.name)}</div>
@@ -390,7 +417,30 @@ function renderItems(){
         <button class="qa-btn" onclick="quickAction('${item.id}','finished')">✅ Done</button>
       </div>
     </div>`;
-  }).join('');
+  };
+
+  if(groupByCategory){
+    // group by category
+    const grouped={};
+    filtered.forEach(item=>{
+      const key=item.category_id||'__none__';
+      if(!grouped[key])grouped[key]=[];
+      grouped[key].push(item);
+    });
+    // sort: categories first, uncategorised last
+    const keys=Object.keys(grouped).sort((a,b)=>{
+      if(a==='__none__')return 1;if(b==='__none__')return-1;
+      const ca=categories.find(c=>c.id===a),cb=categories.find(c=>c.id===b);
+      return(ca?.name||'').localeCompare(cb?.name||'');
+    });
+    grid.innerHTML=keys.map(key=>{
+      const cat=categories.find(c=>c.id===key);
+      const heading=cat?`${cat.emoji} ${cat.name}`:'📦 Uncategorised';
+      return`<div class="cat-group-header">${heading} (${grouped[key].length})</div>${grouped[key].map(renderCard).join('')}`;
+    }).join('');
+  }else{
+    grid.innerHTML=filtered.map(renderCard).join('');
+  }
 }
 
 function setFilter(f,btn){currentFilter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderItems();}
@@ -409,6 +459,8 @@ async function quickAction(id,action){
 let editingId=null,formQty={stocked:1,open:0,min:0};
 function stepQty(t,d){formQty[t]=Math.max(0,(formQty[t]||0)+d);document.getElementById('val-'+t).textContent=formQty[t];}
 
+function selectRating(r,btn){document.getElementById('item-rating').value=r;document.querySelectorAll('[data-r]').forEach(b=>{b.className='rating-opt';});btn.className=`rating-opt selected-${r}`;}
+
 function openAddModal(prefill={}){
   editingId=null;
   document.getElementById('item-modal-title').textContent='Add Item';
@@ -419,6 +471,7 @@ function openAddModal(prefill={}){
   document.getElementById('item-priority').checked=false;
   document.getElementById('item-barcode').value=prefill.barcode||'';
   document.getElementById('item-uom').value='';
+  selectRating('unsure',document.querySelector('[data-r="unsure"]'));
   formQty={stocked:1,open:0,min:0};
   ['stocked','open','min'].forEach(t=>document.getElementById('val-'+t).textContent=formQty[t]);
   document.getElementById('item-save-btn').textContent='Add to Pantry';
@@ -437,6 +490,7 @@ function openEditModal(id){
   document.getElementById('item-priority').checked=!!item.priority;
   document.getElementById('item-barcode').value=item.barcode||'';
   document.getElementById('item-uom').value=item.unit_of_measure||'';
+  selectRating(item.rating||'unsure',document.querySelector(`[data-r="${item.rating||'unsure'}"]`));
   formQty={stocked:item.qty_stocked||0,open:item.qty_open||0,min:item.min_stock||0};
   ['stocked','open','min'].forEach(t=>document.getElementById('val-'+t).textContent=formQty[t]);
   document.getElementById('item-save-btn').textContent='Save Changes';
@@ -452,9 +506,10 @@ async function saveItem(){
   const priority=document.getElementById('item-priority').checked;
   const barcode=document.getElementById('item-barcode').value;
   const uom=document.getElementById('item-uom').value||null;
+  const rating=document.getElementById('item-rating').value||'unsure';
   const cat=categories.find(c=>c.id===catId);
   const emoji=cat?cat.emoji:guessEmoji(name);
-  const payload={name,brand,category_id:catId,expiry_date:expiry,priority,barcode,emoji,unit_of_measure:uom,qty_stocked:formQty.stocked,qty_open:formQty.open,min_stock:formQty.min,updated_at:new Date().toISOString()};
+  const payload={name,brand,category_id:catId,expiry_date:expiry,priority,barcode,emoji,unit_of_measure:uom,rating,qty_stocked:formQty.stocked,qty_open:formQty.open,min_stock:formQty.min,updated_at:new Date().toISOString()};
   try{
     if(editingId){await sbFetch(`/rest/v1/items?id=eq.${editingId}`,{method:'PATCH',headers:{'Prefer':'return=representation'},body:JSON.stringify(payload)});await sbFetch('/rest/v1/history',{method:'POST',body:JSON.stringify({item_id:editingId,action:'Item edited'})});toast('Updated ✓');}
     else{const res=await sbFetch('/rest/v1/items',{method:'POST',headers:{'Prefer':'return=representation'},body:JSON.stringify(payload)});const ni=Array.isArray(res)?res[0]:res;await sbFetch('/rest/v1/history',{method:'POST',body:JSON.stringify({item_id:ni.id,action:'Item added'})});toast('Added ✓');}
