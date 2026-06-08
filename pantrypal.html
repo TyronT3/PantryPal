@@ -6,7 +6,23 @@
 <title>PantryPal</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
 <style>
-  :root{--bg:#0f1117;--surface:#1a1d27;--card:#22263a;--accent:#6c63ff;--accent2:#ff6584;--green:#2ecc71;--yellow:#f39c12;--red:#e74c3c;--orange:#e67e22;--text:#e8eaf6;--muted:#8892b0;--border:#2e3250;--radius:14px;}
+  /* ── COLOURS — edit these to change the app theme ──────
+     Change any value to update colours throughout the app  */
+  :root{
+    --bg:#0f1117;          /* page background */
+    --surface:#1a1d27;     /* header / modal background */
+    --card:#22263a;        /* card background */
+    --accent:#6c63ff;      /* primary purple accent */
+    --accent2:#ff6584;     /* secondary pink accent */
+    --green:#2ecc71;       /* stocked / good */
+    --yellow:#f39c12;      /* open / warning */
+    --red:#e74c3c;         /* empty / danger */
+    --orange:#e67e22;      /* low stock */
+    --text:#e8eaf6;        /* main text */
+    --muted:#8892b0;       /* secondary text */
+    --border:#2e3250;      /* borders */
+    --radius:14px;
+  }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;}
   #app-screen{display:none;flex-direction:column;min-height:100vh;max-width:600px;margin:0 auto;}
@@ -176,6 +192,7 @@
     <div class="header-actions">
       <button class="icon-btn" onclick="openInventoryModal()">📋</button>
       <button class="icon-btn" onclick="openPriorityModal()">⭐</button>
+      <button class="icon-btn" onclick="openTableView()">📊</button>
       <button class="icon-btn" onclick="openShoppingMode()">🛒</button>
       <button class="icon-btn" onclick="openScanModal()">📷</button>
       <button class="icon-btn" onclick="openCatModal()">🏷️</button>
@@ -355,6 +372,17 @@
     <div id="scanner-container"><div id="interactive"></div></div>
     <div class="scan-status" id="scan-status">Point camera at a barcode…</div>
     <button class="btn btn-secondary" onclick="stopScanner();closeModal('scan-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- Table View Modal -->
+<div class="modal-overlay" id="table-modal" style="display:none" onclick="closeItemModal(event)">
+  <div class="modal" style="max-height:95vh;border-radius:20px 20px 0 0">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('table-modal')">✕</button>
+    <h2>📊 Table View</h2>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Edit any field inline. Click Save to update.</p>
+    <div class="table-wrap" id="table-content"><div class="loading-screen"><span class="spinner"></span></div></div>
   </div>
 </div>
 
@@ -593,11 +621,109 @@ function renderUnknownList(){const wrap=document.getElementById('unknown-wrap'),
 function addUnknownToInventory(idx){const u=unknownScans[idx];unknownScans.splice(idx,1);saveUnknownScans();closeModal('shop-modal');openAddModal({name:u.name!=='Unknown'?u.name:'',barcode:u.barcode});renderUnknownList();}
 function printShoppingList(){const all=buildShopItems();const p=all.filter(x=>x.isPriority),o=all.filter(x=>!x.isPriority);const rows=list=>list.map(({item,label})=>`<div class="print-item"><span>${item.emoji||''} ${item.name}${item.brand?' ('+item.brand+')':''}</span><strong>${label}</strong></div>`).join('');document.getElementById('print-area').innerHTML=`<h1 style="font-size:20px;margin-bottom:16px">🛒 PantryPal Shopping List — ${new Date().toLocaleDateString()}</h1>${p.length?`<div class="print-section"><h3>⭐ Priority</h3>${rows(p)}</div>`:''}${o.length?`<div class="print-section"><h3>📋 Also Needed</h3>${rows(o)}</div>`:''}`;window.print();}
 
-let scannerRunning=false;
+// ── Table View ────────────────────────────────────────────
+function openTableView(){
+  document.getElementById('table-modal').style.display='flex';
+  renderTableView();
+}
+
+function renderTableView(){
+  const el=document.getElementById('table-content');
+  if(!items.length){el.innerHTML='<div style="color:var(--muted);text-align:center;padding:20px">No items yet</div>';return;}
+  const sorted=[...items].sort((a,b)=>a.name.localeCompare(b.name));
+  el.innerHTML=`<table>
+    <thead><tr>
+      <th></th><th>Name</th><th>Brand</th><th>Category</th>
+      <th>UoM</th><th>📦</th><th>🔓</th><th>Min</th>
+      <th>Rating</th><th>Priority</th><th>Expiry</th><th></th>
+    </tr></thead>
+    <tbody>${sorted.map(item=>{
+      const st=calcStatus(item);
+      const dotClass={stocked:'dot-stocked',low:'dot-low',open:'dot-open',empty:'dot-empty'}[st]||'dot-empty';
+      const catOptions=`<option value="">—</option>`+categories.map(c=>`<option value="${c.id}" ${item.category_id===c.id?'selected':''}>${c.emoji} ${c.name}</option>`).join('');
+      const uomOptions=`<option value="">—</option>${['Bottle','Jar','Box','Bag','Can','Packet','Tin','Carton','Tube','Each'].map(u=>`<option value="${u}" ${item.unit_of_measure===u?'selected':''}>${u}</option>`).join('')}`;
+      const ratingOptions=`<option value="unsure" ${item.rating==='unsure'?'selected':''}>😐 Unsure</option><option value="love" ${item.rating==='love'?'selected':''}>❤️ Love</option><option value="hate" ${item.rating==='hate'?'selected':''}>😬 Don't buy</option>`;
+      return`<tr id="trow-${item.id}">
+        <td><span class="status-dot ${dotClass}"></span></td>
+        <td><input class="td-input" id="t-name-${item.id}" value="${esc(item.name)}" style="min-width:120px"></td>
+        <td><input class="td-input" id="t-brand-${item.id}" value="${esc(item.brand||'')}" style="min-width:80px"></td>
+        <td><select class="td-select" id="t-cat-${item.id}">${catOptions}</select></td>
+        <td><select class="td-select" id="t-uom-${item.id}">${uomOptions}</select></td>
+        <td><input class="td-input td-num" type="number" id="t-stocked-${item.id}" value="${item.qty_stocked||0}" min="0"></td>
+        <td><input class="td-input td-num" type="number" id="t-open-${item.id}" value="${item.qty_open||0}" min="0"></td>
+        <td><input class="td-input td-num" type="number" id="t-min-${item.id}" value="${item.min_stock||0}" min="0"></td>
+        <td><select class="td-select" id="t-rating-${item.id}">${ratingOptions}</select></td>
+        <td style="text-align:center"><input type="checkbox" id="t-pri-${item.id}" ${item.priority?'checked':''}></td>
+        <td><input class="td-input" type="date" id="t-exp-${item.id}" value="${item.expiry_date||''}" style="min-width:120px"></td>
+        <td><button class="td-save" onclick="saveTableRow('${item.id}')">Save</button></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+async function saveTableRow(id){
+  const item=items.find(i=>i.id===id);if(!item)return;
+  const payload={
+    name:document.getElementById(`t-name-${id}`).value.trim()||item.name,
+    brand:document.getElementById(`t-brand-${id}`).value.trim(),
+    category_id:document.getElementById(`t-cat-${id}`).value||null,
+    unit_of_measure:document.getElementById(`t-uom-${id}`).value||null,
+    qty_stocked:parseInt(document.getElementById(`t-stocked-${id}`).value)||0,
+    qty_open:parseInt(document.getElementById(`t-open-${id}`).value)||0,
+    min_stock:parseInt(document.getElementById(`t-min-${id}`).value)||0,
+    rating:document.getElementById(`t-rating-${id}`).value,
+    priority:document.getElementById(`t-pri-${id}`).checked,
+    expiry_date:document.getElementById(`t-exp-${id}`).value||null,
+    updated_at:new Date().toISOString()
+  };
+  try{
+    await sbFetch(`/rest/v1/items?id=eq.${id}`,{method:'PATCH',headers:{'Prefer':'return=representation'},body:JSON.stringify(payload)});
+    Object.assign(item,payload);
+    renderItems();
+    // flash the row green briefly
+    const row=document.getElementById(`trow-${id}`);
+    if(row){row.style.background='rgba(46,204,113,.15)';setTimeout(()=>row.style.background='',1000);}
+    toast(`✓ ${payload.name} saved`);
+  }catch(e){toast('Error: '+e.message);}
+}
 function openScanModal(){document.getElementById('scan-modal').style.display='flex';setTimeout(startScanner,300);}
 function startScanner(){if(scannerRunning)return;Quagga.init({inputStream:{type:'LiveStream',target:document.getElementById('interactive'),constraints:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}},decoder:{readers:['ean_reader','ean_8_reader','upc_reader','upc_e_reader','code_128_reader']},locate:true},err=>{if(err){document.getElementById('scan-status').textContent='Camera error: '+err;return;}Quagga.start();scannerRunning=true;const sc=document.getElementById('scanner-container');if(!sc.querySelector('.scan-overlay'))sc.innerHTML+=`<div class="scan-overlay"><div class="scan-box"></div></div>`;});let lastCode='',lastTime=0;Quagga.onDetected(r=>{const code=r.codeResult.code,now=Date.now();if(code===lastCode&&now-lastTime<2000)return;lastCode=code;lastTime=now;stopScanner();closeModal('scan-modal');lookupBarcode(code);});}
 function stopScanner(){if(!scannerRunning)return;Quagga.stop();scannerRunning=false;document.getElementById('interactive').innerHTML='';}
-async function lookupBarcode(code){toast('Looking up…');try{const r=await fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`);const d=await r.json();if(d.status===1&&d.product){const p=d.product;openAddModal({name:p.product_name||p.generic_name||'',brand:p.brands||'',barcode:code});toast('Product found!');}else{openAddModal({barcode:code});toast('Enter details manually');}}catch(e){openAddModal({barcode:code});toast('Lookup failed');}}
+async function lookupBarcode(code){
+  toast('🔍 Looking up barcode…');
+  // First check if barcode already exists in our own pantry
+  const existing=items.find(i=>i.barcode===code);
+  if(existing){
+    toast(`Found in pantry: ${existing.name}`);
+    openAddModal({name:existing.name,brand:existing.brand||'',barcode:code});
+    return;
+  }
+  // Try Open Food Facts
+  try{
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),8000);
+    const r=await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}?fields=product_name,generic_name,brands,categories_tags`,{signal:controller.signal});
+    clearTimeout(timeout);
+    if(r.ok){
+      const d=await r.json();
+      if(d.status===1&&d.product){
+        const p=d.product;
+        const name=(p.product_name||p.generic_name||'').trim();
+        const brand=(p.brands||'').split(',')[0].trim();
+        if(name){
+          openAddModal({name,brand,barcode:code});
+          toast(`✅ Found: ${name}`);
+          return;
+        }
+      }
+    }
+  }catch(e){
+    // network error or timeout — fall through
+  }
+  // Not found anywhere — open form with barcode pre-filled so it gets saved
+  openAddModal({barcode:code});
+  toast('Barcode not found — enter details to save it');
+}
 
 function closeModal(id){document.getElementById(id).style.display='none';if(id==='scan-modal')stopScanner();if(id==='shop-modal')stopShopScanner();}
 function closeItemModal(e){if(e.target===e.currentTarget)closeModal(e.currentTarget.id);}
