@@ -385,8 +385,9 @@ function calcScores(logs) {
   return {tyron:t, ansonette:a};
 }
 
-var chores=[], todayLogs=[], goals=[], activeTab='today';
+var chores=[], todayLogs=[], weekLogs=[], monthLogs=[], goals=[], activeTab='today';
 var pendingChoreId=null, pendingPerson=null, editingChoreId=null;
+var diaperLogging=false; // guard against double-firing
 
 window.onload = function(){
   if (!localStorage.getItem('fp_email')){ window.location.href='index.html'; return; }
@@ -401,9 +402,12 @@ async function loadAll(){
     var results = await Promise.all([
       sbFetch('/rest/v1/chores?active=eq.true&order=name.asc&select=*'),
       sbFetch('/rest/v1/chore_logs?completed_at=gte.'+todayStart.toISOString()+'&order=completed_at.desc&select=*'),
-      sbFetch('/rest/v1/chore_goals?active=eq.true&order=created_at.desc&select=*')
+      sbFetch('/rest/v1/chore_goals?active=eq.true&order=created_at.desc&select=*'),
+      sbFetch('/rest/v1/chore_logs?completed_at=gte.'+getWeekStart().toISOString()+'&select=*'),
+      sbFetch('/rest/v1/chore_logs?completed_at=gte.'+getMonthStart().toISOString()+'&select=*')
     ]);
     chores = results[0]; todayLogs = results[1]; goals = results[2];
+    weekLogs = results[3]; monthLogs = results[4];
     checkGoalExpiry();
     renderToday();
   } catch(e){ toast('Error: '+e.message); }
@@ -448,14 +452,23 @@ function isDueToday(chore){
 function renderToday(){
   var ts=new Date(); ts.setHours(0,0,0,0);
   var dayLogs = todayLogs.filter(function(l){ return new Date(l.completed_at)>=ts; });
-  var scores = calcScores(dayLogs);
+  var wScores = calcScores(weekLogs);
+  var mScores = calcScores(monthLogs);
   var tc = dayLogs.filter(function(l){ return l.completed_by==='Tyron'||l.shared; }).length;
   var ac = dayLogs.filter(function(l){ return l.completed_by==='Ansonette'||l.shared; }).length;
 
   document.getElementById('score-area').innerHTML =
     '<div class="score-banner">' +
-    '<div class="score-side tyron"><div class="score-name">👨 Tyron '+(scores.tyron>scores.ansonette&&scores.tyron>0?'🏆':'')+'</div><div class="score-pts">'+scores.tyron+'</div><div class="score-sub">'+tc+' done today</div></div>' +
-    '<div class="score-side ansonette"><div class="score-name">👩 Ansonette '+(scores.ansonette>scores.tyron&&scores.ansonette>0?'🏆':'')+'</div><div class="score-pts">'+scores.ansonette+'</div><div class="score-sub">'+ac+' done today</div></div>' +
+    '<div class="score-side tyron">' +
+      '<div class="score-name">👨 Tyron '+(wScores.tyron>wScores.ansonette&&wScores.tyron>0?'🏆':'')+'</div>' +
+      '<div class="score-pts">'+wScores.tyron+'<span style="font-size:13px;font-weight:400;color:var(--muted)"> wk</span></div>' +
+      '<div class="score-sub">'+mScores.tyron+' pts this month · '+tc+' today</div>' +
+    '</div>' +
+    '<div class="score-side ansonette">' +
+      '<div class="score-name">👩 Ansonette '+(wScores.ansonette>wScores.tyron&&wScores.ansonette>0?'🏆':'')+'</div>' +
+      '<div class="score-pts">'+wScores.ansonette+'<span style="font-size:13px;font-weight:400;color:var(--muted)"> wk</span></div>' +
+      '<div class="score-sub">'+mScores.ansonette+' pts this month · '+ac+' today</div>' +
+    '</div>' +
     '</div>';
 
   renderGoalStrip();
@@ -557,6 +570,8 @@ function handleWhoSelected(person){
 }
 
 async function completeDiaperLog(diaperType, babypalType){
+  if(diaperLogging) return;
+  diaperLogging=true;
   closeModal('diaper-modal');
   var chore=chores.find(function(c){ return c.id===pendingChoreId; });
   var person=pendingPerson;
@@ -568,14 +583,16 @@ async function completeDiaperLog(diaperType, babypalType){
     var res=await sbFetch('/rest/v1/chore_logs',{method:'POST',headers:{'Prefer':'return=representation'},body:JSON.stringify(payload)});
     var log=Array.isArray(res)?res[0]:res;
     todayLogs.unshift(log);
+    weekLogs.unshift(log);
+    monthLogs.unshift(log);
     if (chore && chore.babypal_link==='diaper' && babypalType){
       await sbFetch('/rest/v1/baby_diapers',{method:'POST',body:JSON.stringify({diaper_type:babypalType, logged_at:new Date().toISOString()})});
     }
     var label = diaperType ? DIAPER_NAMES[diaperType] : 'Done';
     toast(shared?'👨👩 Together! '+label+' +'+eachPts+'pts each':label+' — '+person+' +'+pts+'pt'+(pts!==1?'s':''));
-    pendingChoreId=null; pendingPerson=null;
+    pendingChoreId=null; pendingPerson=null; diaperLogging=false;
     renderToday();
-  } catch(e){ toast('Error: '+e.message); }
+  } catch(e){ diaperLogging=false; toast('Error: '+e.message); }
 }
 
 async function undoChore(logId){
