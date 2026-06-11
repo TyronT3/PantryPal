@@ -214,31 +214,31 @@
   </div>
 </div>
 
-<!-- Wake Modal -->
-<div class="modal-overlay" id="wake-modal" style="display:none" onclick="closeModalClick(event)">
+<!-- Sleep Sessions List Modal -->
+<div class="modal-overlay" id="sleep-list-modal" style="display:none" onclick="closeModalClick(event)">
   <div class="modal">
     <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal('wake-modal')">✕</button>
-    <h2>☀️ She woke up!</h2>
-    <div class="warn-box" id="wake-warning" style="display:none"></div>
-    <div class="time-row"><label>Woke at</label><input type="datetime-local" id="wake-time"></div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Adjust if needed before saving.</div>
-    <button class="btn btn-primary" onclick="confirmWakeUp()">☀️ Save Wake Up</button>
-    <button class="btn btn-secondary" onclick="closeModal('wake-modal')">Cancel</button>
+    <button class="modal-close" onclick="closeModal('sleep-list-modal')">✕</button>
+    <h2>😴 Sleep Sessions</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Tap any session to edit start and end times.</p>
+    <div id="sleep-sessions-list"></div>
+    <button class="btn btn-primary" style="margin-top:12px" onclick="openAddSleepModal()">+ Add Sleep Session</button>
   </div>
 </div>
 
-<!-- No Sleep Modal -->
-<div class="modal-overlay" id="nosleep-modal" style="display:none" onclick="closeModalClick(event)">
+<!-- Add/Edit Sleep Modal -->
+<div class="modal-overlay" id="sleep-edit-modal" style="display:none" onclick="closeModalClick(event)">
   <div class="modal">
     <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal('nosleep-modal')">✕</button>
-    <h2>⚠️ No sleep started</h2>
-    <div class="warn-box">No sleep session is active. Enter the times manually.</div>
-    <div class="time-row"><label>Fell asleep</label><input type="datetime-local" id="nosleep-start"></div>
-    <div class="time-row"><label>Woke up</label><input type="datetime-local" id="nosleep-end"></div>
-    <button class="btn btn-primary" onclick="logManualSleep()">Save Sleep Session</button>
-    <button class="btn btn-secondary" onclick="closeModal('nosleep-modal')">Cancel</button>
+    <button class="modal-close" onclick="closeModal('sleep-edit-modal')">✕</button>
+    <h2 id="sleep-edit-title">✏️ Edit Sleep Session</h2>
+    <div class="time-row"><label>Fell asleep</label><input type="datetime-local" id="sleep-edit-start"></div>
+    <div class="time-row"><label>Woke up</label><input type="datetime-local" id="sleep-edit-end"></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Leave "woke up" empty if she's still sleeping.</div>
+    <div class="field"><label>Notes (optional)</label><input type="text" id="sleep-edit-notes" placeholder="e.g. slept in pram"></div>
+    <input type="hidden" id="sleep-edit-id">
+    <button class="btn btn-primary" onclick="saveSleepEdit()">Save Session</button>
+    <button class="btn btn-secondary" id="sleep-delete-btn" style="color:var(--red)" onclick="deleteSleepSession()">🗑 Delete Session</button>
   </div>
 </div>
 

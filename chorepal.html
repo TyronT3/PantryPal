@@ -501,11 +501,21 @@ function renderToday(){
                      '<span class="chore-pill pill-ansonette">👩</span>';
     var linkPill = c.babypal_link ? '<span class="chore-pill pill-linked">🔗 BabyPal</span>' : '';
     var ptsLabel = c.babypal_link ? '1–10' : c.points;
-    var doneInfo='', doneClass='';
-    if (last){
-      var dType = last.notes && DIAPER_NAMES[last.notes] ? ' ('+DIAPER_NAMES[last.notes]+')' : '';
-      doneInfo = last.shared ? '👨👩 Together ×'+count+dType : last.completed_by+(count>1?' ×'+count:'')+dType;
-      doneClass = last.shared ? 'both' : last.completed_by.toLowerCase();
+    var doneInfo='', doneClass='tyron';
+    if(logs.length>0){
+      // count per person
+      var tCount=logs.filter(function(l){ return !l.shared&&l.completed_by==='Tyron'; }).length;
+      var aCount=logs.filter(function(l){ return !l.shared&&l.completed_by==='Ansonette'; }).length;
+      var bCount=logs.filter(function(l){ return l.shared; }).length;
+      var parts=[];
+      if(tCount>0) parts.push('👨 Tyron'+(tCount>1?' ×'+tCount:''));
+      if(aCount>0) parts.push('👩 Ansonette'+(aCount>1?' ×'+aCount:''));
+      if(bCount>0) parts.push('👨👩 Together'+(bCount>1?' ×'+bCount:''));
+      // add diaper type if applicable
+      var lastDiaper=logs.filter(function(l){ return l.notes&&DIAPER_NAMES[l.notes]; });
+      var typeNote=lastDiaper.length>0?' ('+DIAPER_NAMES[lastDiaper[0].notes]+')':'';
+      doneInfo='✓ '+parts.join(', ')+typeNote;
+      doneClass=tCount>0&&aCount>0?'both':tCount>0?'tyron':'ansonette';
     }
     return '<div class="chore-card '+(count>0&&!canRepeat?'done':'')+'">' +
       '<div class="chore-emoji">'+(c.emoji||'🧹')+'</div>' +
